@@ -1125,6 +1125,15 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`  📁 Native .kdbx Import & Daily Local Backups Active`);
     console.log(`  👥 Granular Team Co-Access Active`);
     console.log(`=======================================================`);
+
+    // Embedded Git Auto-Sync Daemon
+    try {
+        const { startWatcher } = require('./auto-sync');
+        startWatcher();
+    } catch (err) {
+        console.error('⚠️ Could not start embedded Git auto-sync daemon:', err.message);
+    }
 });
 
 module.exports = server;
+
