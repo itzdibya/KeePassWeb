@@ -1405,3 +1405,26 @@ body {
     from { opacity: 0; transform: translateX(40px); }
     to { opacity: 1; transform: translateX(0); }
 }
+
+/* Custom Fields Tab */
+.custom-fields-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.custom-fields-editor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.custom-field-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+

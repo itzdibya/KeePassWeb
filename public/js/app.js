@@ -709,6 +709,7 @@ class KeePassWebApp {
         if (specificBox) specificBox.style.display = 'none';
 
         this.renderTeamSharingList('modalTeamPermissionsList');
+        this.renderCustomFieldsEditor([]);
 
         // Reset to first tab
         document.querySelectorAll('#entryModal .modal-tab-btn').forEach(btn => {
@@ -768,6 +769,7 @@ class KeePassWebApp {
         }
 
         this.renderTeamSharingList('modalTeamPermissionsList', entry.sharedUsers || []);
+        this.renderCustomFieldsEditor(entry.customFields || []);
 
         // Reset to first tab
         document.querySelectorAll('#entryModal .modal-tab-btn').forEach(btn => {
@@ -815,64 +817,120 @@ class KeePassWebApp {
         }).join('');
     }
 
+    renderCustomFieldsEditor(fields = []) {
+        const container = document.getElementById('customFieldsEditorList');
+        if (!container) return;
+        container.innerHTML = '';
+        if (Array.isArray(fields) && fields.length > 0) {
+            fields.forEach(f => this.addCustomFieldRow(f.name, f.value));
+        }
+    }
+
+    addCustomFieldRow(name = '', value = '') {
+        const container = document.getElementById('customFieldsEditorList');
+        if (!container) return;
+
+        const row = document.createElement('div');
+        row.className = 'custom-field-row';
+        row.style.cssText = 'display: flex; gap: 10px; margin-bottom: 10px; align-items: center;';
+        row.innerHTML = `
+            <input type="text" class="form-input custom-field-name" placeholder="Field Label (e.g. Pin, API Key)" value="${this.escapeHtml(name)}" style="flex: 1;">
+            <input type="text" class="form-input custom-field-val" placeholder="Field Value" value="${this.escapeHtml(value)}" style="flex: 1.5;">
+            <button type="button" class="btn btn-secondary btn-sm remove-custom-field-btn" title="Remove Field" style="padding: 8px 12px; color: var(--color-danger); border-color: rgba(239,68,68,0.3);">✕</button>
+        `;
+        row.querySelector('.remove-custom-field-btn')?.addEventListener('click', () => row.remove());
+        container.appendChild(row);
+    }
+
     async saveEntry() {
-        const title = document.getElementById('entryInputTitle').value.trim();
+        const titleInput = document.getElementById('entryInputTitle');
+        const title = titleInput ? titleInput.value.trim() : '';
         if (!title) {
             this.showToast('Entry title is required', 'danger');
+            const generalTabBtn = document.querySelector('#entryModal .modal-tab-btn[data-tab="tab-general"]');
+            if (generalTabBtn) generalTabBtn.click();
+            if (titleInput) titleInput.focus();
             return;
         }
 
-        const folderId = document.getElementById('entryInputFolder').value;
-        const icon = document.getElementById('entryInputIcon').value;
-        const username = document.getElementById('entryInputUsername').value.trim();
-        const password = document.getElementById('entryInputPassword').value;
-        const url = document.getElementById('entryInputUrl').value.trim();
-        const totpSecret = document.getElementById('entryInputTotp').value.trim();
-        const tags = document.getElementById('entryInputTags').value.split(',').map(t => t.trim()).filter(Boolean);
-        const expiresAt = document.getElementById('entryInputExpires').value || null;
-        const notes = document.getElementById('entryInputNotes').value;
-
-        const sharingMode = document.querySelector('input[name="sharingScope"]:checked')?.value || 'private';
-        const shares = [];
-
-        if (sharingMode === 'selected') {
-            document.querySelectorAll('#modalTeamPermissionsList .share-user-check:checked').forEach(chk => {
-                const parent = chk.closest('div');
-                const permSelect = parent.querySelector('.share-user-perm');
-                shares.push({
-                    userId: chk.value,
-                    permission: permSelect ? permSelect.value : 'viewer'
-                });
-            });
+        const submitBtn = document.getElementById('saveEntrySubmitBtn');
+        const originalBtnText = submitBtn ? submitBtn.textContent : 'Save Vault Entry';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
         }
 
-        const payload = {
-            title, folderId, icon, username, password, url, totpSecret, tags, expiresAt, notes, sharingMode, shares
-        };
+        try {
+            const folderId = document.getElementById('entryInputFolder')?.value || 'f_root';
+            const icon = document.getElementById('entryInputIcon')?.value || '🔑';
+            const username = document.getElementById('entryInputUsername')?.value.trim() || '';
+            const password = document.getElementById('entryInputPassword')?.value || '';
+            const url = document.getElementById('entryInputUrl')?.value.trim() || '';
+            const totpSecret = document.getElementById('entryInputTotp')?.value.trim() || '';
+            const tagsVal = document.getElementById('entryInputTags')?.value || '';
+            const tags = tagsVal.split(',').map(t => t.trim()).filter(Boolean);
+            const expiresAt = document.getElementById('entryInputExpires')?.value || null;
+            const notes = document.getElementById('entryInputNotes')?.value || '';
 
-        if (this.editingEntryId) {
-            const res = await this.apiPut(`/api/entries/${this.editingEntryId}`, payload);
-            if (res && res.success) {
-                const id = this.editingEntryId;
-                this.editingEntryId = null;
-                this.showToast('Vault entry updated securely!', 'success');
-                this.closeModal('entryModal');
-                await this.loadVaultData();
-                this.selectEntry(id);
-            } else {
-                this.showToast(res?.error || 'Failed to update entry', 'danger');
+            const sharingMode = document.querySelector('input[name="sharingScope"]:checked')?.value || 'private';
+            const shares = [];
+
+            if (sharingMode === 'selected') {
+                document.querySelectorAll('#modalTeamPermissionsList .share-user-check:checked').forEach(chk => {
+                    const parent = chk.closest('div');
+                    const permSelect = parent?.querySelector('.share-user-perm');
+                    shares.push({
+                        userId: chk.value,
+                        permission: permSelect ? permSelect.value : 'viewer'
+                    });
+                });
             }
-        } else {
-            const res = await this.apiPost('/api/entries', payload);
-            if (res && res.success) {
-                this.showToast('Vault entry saved securely!', 'success');
-                this.closeModal('entryModal');
-                await this.loadVaultData();
-                if (res.entry?.id) {
-                    this.selectEntry(res.entry.id);
+
+            const customFields = [];
+            document.querySelectorAll('#customFieldsEditorList .custom-field-row').forEach(row => {
+                const name = row.querySelector('.custom-field-name')?.value.trim();
+                const value = row.querySelector('.custom-field-val')?.value || '';
+                if (name) {
+                    customFields.push({ name, value, isProtected: false });
+                }
+            });
+
+            const payload = {
+                title, folderId, icon, username, password, url, totpSecret, tags, expiresAt, notes, sharingMode, shares, customFields
+            };
+
+            if (this.editingEntryId) {
+                const res = await this.apiPut(`/api/entries/${this.editingEntryId}`, payload);
+                if (res && res.success) {
+                    const id = this.editingEntryId;
+                    this.editingEntryId = null;
+                    this.showToast('Vault entry updated securely!', 'success');
+                    this.closeModal('entryModal');
+                    await this.loadVaultData();
+                    this.selectEntry(id);
+                } else {
+                    this.showToast(res?.error || 'Failed to update entry', 'danger');
                 }
             } else {
-                this.showToast(res?.error || 'Failed to save entry', 'danger');
+                const res = await this.apiPost('/api/entries', payload);
+                if (res && res.success) {
+                    this.showToast('Vault entry saved securely!', 'success');
+                    this.closeModal('entryModal');
+                    await this.loadVaultData();
+                    if (res.entry?.id) {
+                        this.selectEntry(res.entry.id);
+                    }
+                } else {
+                    this.showToast(res?.error || 'Failed to save entry', 'danger');
+                }
+            }
+        } catch (err) {
+            console.error('Error saving entry:', err);
+            this.showToast('Failed to save entry: ' + (err.message || 'Server error'), 'danger');
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
             }
         }
     }
@@ -1484,6 +1542,23 @@ class KeePassWebApp {
         }
     }
 
+    async apiPost(endpoint, body) {
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                },
+                body: JSON.stringify(body)
+            });
+            return await res.json();
+        } catch (e) {
+            console.error('API POST error:', e);
+            return null;
+        }
+    }
+
     async apiPut(endpoint, body) {
         try {
             const res = await fetch(endpoint, {
@@ -1658,15 +1733,38 @@ class KeePassWebApp {
 
         // Auto-generate password in modal
         document.getElementById('entryGenPassBtn')?.addEventListener('click', async () => {
-            const res = await this.apiPost('/api/generator', { length: 20, useUpper: true, useLower: true, useDigits: true, useSymbols: true });
-            if (res && res.password) {
-                const passInput = document.getElementById('entryInputPassword');
-                if (passInput) {
-                    passInput.value = res.password;
-                    passInput.dispatchEvent(new Event('input'));
+            const btn = document.getElementById('entryGenPassBtn');
+            if (btn) btn.disabled = true;
+            let pass = '';
+            try {
+                const res = await this.apiPost('/api/generator', { length: 20, useUpper: true, useLower: true, useDigits: true, useSymbols: true });
+                if (res && res.password) {
+                    pass = res.password;
                 }
-                this.showToast('Generated strong password!', 'info');
+            } catch (e) {
+                console.error('Auto-generate password error:', e);
             }
+
+            // Fallback generation client-side if API fails
+            if (!pass) {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*()_+-=';
+                const arr = new Uint32Array(20);
+                window.crypto.getRandomValues(arr);
+                pass = Array.from(arr, n => chars[n % chars.length]).join('');
+            }
+
+            const passInput = document.getElementById('entryInputPassword');
+            if (passInput) {
+                passInput.value = pass;
+                passInput.dispatchEvent(new Event('input'));
+            }
+            if (btn) btn.disabled = false;
+            this.showToast('Generated strong password!', 'info');
+        });
+
+        // Add custom field button
+        document.getElementById('addCustomFieldBtn')?.addEventListener('click', () => {
+            this.addCustomFieldRow();
         });
 
         // Live strength meter in entry modal

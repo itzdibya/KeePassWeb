@@ -305,6 +305,52 @@
       "sharingMode": "private",
       "createdAt": "2026-01-11T12:00:00.000Z",
       "updatedAt": "2026-01-11T12:00:00.000Z"
+    },
+    {
+      "id": "e_1788422441100_l1foj",
+      "folderId": "f_root",
+      "ownerId": "u_alice",
+      "title": "sgsg",
+      "username": "sdgs",
+      "encryptedPassword": "77e527126592d6e4d1a9ab60:075905be2e5009649c370f14898a51cd:386d2267d4c5c186f6eb9a89",
+      "url": "login.gmIIL.COM",
+      "notesEncrypted": "",
+      "customFieldsEncrypted": "81f1dcb6ce29e25e06f3af31:233ae37f56a1b84af77bb9252c0871f1:47a1",
+      "totpSecretEncrypted": "",
+      "tags": [
+        "GFJHFG"
+      ],
+      "icon": "🔒",
+      "color": "#3b82f6",
+      "expiresAt": null,
+      "isFavorite": false,
+      "inRecycleBin": true,
+      "sharingMode": "private",
+      "createdAt": "2026-09-03T08:00:41.280Z",
+      "updatedAt": "2026-09-03T08:00:50.906Z"
+    },
+    {
+      "id": "e_1788427407515_x8y6n",
+      "folderId": "f_root",
+      "ownerId": "u_alice",
+      "title": "Test AWS",
+      "username": "admin@help.com",
+      "encryptedPassword": "4f47ecffff175b8aee61a897:c636284e46ea10ce92c846aa987e0a5d:e92036e45fba521eef54429f882c",
+      "url": "console.swa.com",
+      "notesEncrypted": "",
+      "customFieldsEncrypted": "fb110a9a76cdea93530ec830:1b5d69abb18b5780550767ec5122a94f:14d4",
+      "totpSecretEncrypted": "",
+      "tags": [
+        "test"
+      ],
+      "icon": "☁️",
+      "color": "#3b82f6",
+      "expiresAt": null,
+      "isFavorite": false,
+      "inRecycleBin": false,
+      "sharingMode": "selected",
+      "createdAt": "2026-09-03T09:23:27.695Z",
+      "updatedAt": "2026-09-03T09:23:27.695Z"
     }
   ],
   "entryShares": [
@@ -323,6 +369,14 @@
       "permission": "editor",
       "grantedBy": "u_alice",
       "createdAt": "2026-01-12T09:20:00.000Z"
+    },
+    {
+      "id": "es_1788427407695_v476",
+      "entryId": "e_1788427407515_x8y6n",
+      "userId": "u_admin",
+      "permission": "co_owner",
+      "grantedBy": "u_alice",
+      "createdAt": "2026-09-03T09:23:27.695Z"
     }
   ],
   "passwordHistory": [
@@ -335,6 +389,94 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "al_1788427408381_6kix",
+      "userId": "u_alice",
+      "username": "alice",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1788427407515_x8y6n",
+      "entryTitle": "Test AWS",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"Test AWS\"",
+      "timestamp": "2026-09-03T09:23:28.381Z"
+    },
+    {
+      "id": "al_1788427407695_hesi",
+      "userId": "u_alice",
+      "username": "alice",
+      "action": "ENTRY_CREATED",
+      "entryId": "e_1788427407515_x8y6n",
+      "entryTitle": "Test AWS",
+      "ip": "10.200.58.59",
+      "details": "Created entry \"Test AWS\" (Sharing: selected)",
+      "timestamp": "2026-09-03T09:23:27.695Z"
+    },
+    {
+      "id": "al_1788427337324_uypa",
+      "userId": "u_alice",
+      "username": "alice",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_2",
+      "entryTitle": "AWS Production Master Account",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"AWS Production Master Account\"",
+      "timestamp": "2026-09-03T09:22:17.324Z"
+    },
+    {
+      "id": "al_1788422450906_76u5",
+      "userId": "u_alice",
+      "username": "alice",
+      "action": "ENTRY_MOVED_TO_TRASH",
+      "entryId": "e_1788422441100_l1foj",
+      "entryTitle": null,
+      "ip": "10.200.58.59",
+      "details": "Moved entry ID e_1788422441100_l1foj to trash",
+      "timestamp": "2026-09-03T08:00:50.907Z"
+    },
+    {
+      "id": "al_1788422445141_dr7h",
+      "userId": "u_alice",
+      "username": "alice",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1788422441100_l1foj",
+      "entryTitle": "sgsg",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sgsg\"",
+      "timestamp": "2026-09-03T08:00:45.141Z"
+    },
+    {
+      "id": "al_1788422441901_cfsd",
+      "userId": "u_alice",
+      "username": "alice",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1788422441100_l1foj",
+      "entryTitle": "sgsg",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sgsg\"",
+      "timestamp": "2026-09-03T08:00:41.901Z"
+    },
+    {
+      "id": "al_1788422441280_lbzo",
+      "userId": "u_alice",
+      "username": "alice",
+      "action": "ENTRY_CREATED",
+      "entryId": "e_1788422441100_l1foj",
+      "entryTitle": "sgsg",
+      "ip": "10.200.58.59",
+      "details": "Created entry \"sgsg\" (Sharing: private)",
+      "timestamp": "2026-09-03T08:00:41.280Z"
+    },
+    {
+      "id": "al_1788421027120_cj6l",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "LOGIN",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "10.200.66.192",
+      "details": "User logged in successfully (Salt Hashing verified)",
+      "timestamp": "2026-09-03T07:37:07.120Z"
+    },
     {
       "id": "al_1788417699269_cm6a",
       "userId": "u_alice",

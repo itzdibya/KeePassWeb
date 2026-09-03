@@ -56,6 +56,34 @@ All seeded accounts use password format `<Name>123!@#`:
 
 ## 🧪 Running Automated Tests
 ```bash
-node test/test-crypto.js
+npm test
 ```
 Verifies AES-256-GCM encryption, 32-byte salt hashing, RFC 6238 MFA token calculation, .kdbx parsing, backup rotation, and multi-user co-access isolation.
+
+---
+
+## 🔄 Automated CI/CD & Auto-Sync to GitHub
+
+KeePass Web includes an automated Git sync daemon that monitors the workspace, runs tests, commits, and automatically pushes changes to the GitHub repository:
+
+### 1. Manual / One-Time Sync
+Stage, test, commit, and push pending changes immediately:
+```bash
+npm run sync
+```
+
+### 2. Live Watcher Daemon
+Automatically detect any file changes, run pre-push tests, and push to GitHub:
+```bash
+npm run sync:watch
+```
+
+### 3. Background Daemon with PM2
+The auto-sync daemon is registered in `ecosystem.config.js`:
+```bash
+pm2 start ecosystem.config.js --only keepass2-autosync
+```
+
+### 4. GitHub Actions CI
+Every commit pushed to `master` triggers the automated CI workflow in `.github/workflows/ci.yml` across Node.js 18.x and 20.x.
+
