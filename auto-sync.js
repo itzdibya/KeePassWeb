@@ -244,10 +244,18 @@ function startWatcher() {
     }
 }
 
-if (IS_WATCH_MODE) {
-    startWatcher();
-} else {
-    performSync().then(() => {
-        process.exit(0);
-    });
+module.exports = {
+    startWatcher,
+    performSync
+};
+
+if (require.main === module) {
+    if (IS_WATCH_MODE) {
+        startWatcher();
+    } else {
+        performSync().then(() => {
+            process.exit(0);
+        });
+    }
 }
+
