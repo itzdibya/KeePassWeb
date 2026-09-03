@@ -34,7 +34,8 @@ const IGNORED_PATHS = [
     'backups',
     '.DS_Store',
     'npm-debug.log',
-    'auto-sync.log'
+    'auto-sync.log',
+    'sso-auth.js'
 ];
 
 let syncTimer = null;
