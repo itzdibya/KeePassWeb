@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeePass Web | Team Edition - Secure Vault & Granular Co-Access</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app" class="app-layout">
+        <!-- TOP HEADER -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo-container">
+                    <div class="logo-icon-wrap">
+                        <span class="logo-icon">🛡️</span>
+                        <div class="logo-glow"></div>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-brand">KeePass<span class="logo-accent">Web</span></span>
+                        <span class="logo-badge">TEAM EDITION</span>
+                    </div>
+                </div>
+
+                <div class="global-search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="globalSearchInput" class="search-input" placeholder="Search passwords, usernames, URLs, tags... (Ctrl+K)" autocomplete="off">
+                    <kbd class="search-shortcut">⌘K</kbd>
+                    <button id="clearSearchBtn" class="clear-search-btn" title="Clear search" style="display:none;">✕</button>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button id="newEntryTopBtn" class="btn btn-primary">
+                    <span class="btn-icon">➕</span>
+                    <span class="btn-text">New Entry</span>
+                </button>
+
+                <div class="header-tools">
+                    <button id="openGeneratorBtn" class="tool-btn" title="Password Generator">
+                        <span>🔑</span>
+                        <span class="tool-label">Generator</span>
+                    </button>
+                    <button id="openHealthBtn" class="tool-btn" title="Vault Security Health">
+                        <span>📊</span>
+                        <span class="tool-label">Health</span>
+                    </button>
+                    <button id="openAuditBtn" class="tool-btn" title="Audit & Activity Logs">
+                        <span>📜</span>
+                        <span class="tool-label">Audit Log</span>
+                    </button>
+                    <button id="openBackupsBtn" class="tool-btn" title="Daily Local Database Backups">
+                        <span>💾</span>
+                        <span class="tool-label">Backups</span>
+                    </button>
+                    <button id="openImportExportBtn" class="tool-btn" title="KeePass .kdbx / XML / CSV Import & Export">
+                        <span>🔄</span>
+                        <span class="tool-label">Import / Export</span>
+                    </button>
+                    <button id="openTeamBtn" class="tool-btn" title="Team Members & Roles">
+                        <span>👥</span>
+                        <span class="tool-label">Team</span>
+                    </button>
+                </div>
+
+                <div class="header-divider"></div>
+
+                <!-- AUTHENTICATED USER BADGE -->
+                <div class="user-profile-badge" id="topUserProfileBadge" style="display: flex; align-items: center; gap: 8px; padding: 5px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+                    <span id="topUserAvatar" style="font-size: 16px;">👩‍💻</span>
+                    <span id="topUserName" style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Alice</span>
+                    <span id="topUserRole" style="font-size: 11px; padding: 2px 6px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 4px; font-weight: 600;">MANAGER</span>
+                </div>
+
+                <!-- LOGOUT / SWITCH USER -->
+                <button id="logoutTopBtn" class="tool-btn" title="Lock vault & log out" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">
+                    <span>🚪</span>
+                    <span class="tool-label">Logout</span>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button id="themeToggleBtn" class="icon-btn" title="Toggle Dark/Light Theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+
+                <!-- MFA Settings -->
+                <button id="mfaSettingsBtn" class="icon-btn" title="MFA Authenticator Settings">
+                    <span>🔐</span>
+                </button>
+
+                <!-- Lock Vault -->
+                <button id="lockVaultBtn" class="icon-btn lock-btn" title="Lock Vault (Auto-locks on inactivity)">
+                    <span>🔒</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN WORKSPACE -->
+        <div class="workspace-body">
+            <!-- LEFT NAVIGATION SIDEBAR -->
+            <aside class="sidebar" id="appSidebar">
+                <div class="sidebar-section">
+                    <div class="section-title">VAULT VIEWS</div>
+                    <nav class="nav-list">
+                        <a href="#" class="nav-item active" data-view="all">
+                            <span class="nav-icon">🌟</span>
+                            <span class="nav-label">All Accessible Items</span>
+                            <span class="nav-badge" id="badgeAllCount">0</span>
+                        </a>
+                        <a href="#" class="nav-item" data-view="favorites">
+                            <span class="nav-icon">⭐</span>
+                            <span class="nav-label">Favorites</span>
+                            <span class="nav-badge" id="badgeFavCount">0</span>
+                        </a>
+                        <a href="#" class="nav-item" data-view="private_only">
+                            <span class="nav-icon">🔒</span>
+                            <span class="nav-label">My Private Vault</span>
+                            <span class="nav-badge badge-private" id="badgePrivateCount">0</span>
+                        </a>
+                        <a href="#" class="nav-item" data-view="shared_with_me">
+                            <span class="nav-icon">👥</span>
+                            <span class="nav-label">Shared With Me</span>
+                            <span class="nav-badge badge-shared" id="badgeSharedWithMeCount">0</span>
+                        </a>
+                        <a href="#" class="nav-item" data-view="shared_by_me">
+                            <span class="nav-icon">📤</span>
+                            <span class="nav-label">Shared By Me</span>
+                            <span class="nav-badge" id="badgeSharedByMeCount">0</span>
+                        </a>
+                        <a href="#" class="nav-item" data-view="recycle_bin">
+                            <span class="nav-icon">🗑️</span>
+                            <span class="nav-label">Recycle Bin</span>
+                            <span class="nav-badge" id="badgeTrashCount">0</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="section-header">
+                        <span class="section-title">KEEPASS GROUPS</span>
+                        <button id="addFolderBtn" class="mini-btn" title="Create New Group">➕</button>
+                    </div>
+                    <div class="folder-tree" id="folderTreeList">
+                        <!-- Dynamic Folder Tree -->
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="section-title">POPULAR TAGS</div>
+                    <div class="tags-cloud" id="tagsCloud">
+                        <!-- Dynamic Tags -->
+                    </div>
+                </div>
+
+                <!-- SIDEBAR FOOTER -->
+                <div class="sidebar-footer">
+                    <div class="user-card">
+                        <div class="user-avatar" id="currentUserAvatar">👩‍💻</div>
+                        <div class="user-info">
+                            <div class="user-name" id="currentUserName">Alice (DevOps Lead)</div>
+                            <div class="user-role-badge" id="currentUserRole">Manager</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- MAIN LIST / TABLE PANE -->
+            <main class="content-pane" id="mainContentPane">
+                <!-- VIEW HEADER -->
+                <div class="content-header">
+                    <div class="header-breadcrumbs">
+                        <span id="currentViewTitle" class="current-view-title">All Accessible Items</span>
+                        <span id="currentViewCount" class="view-item-count">6 items</span>
+                    </div>
+
+                    <div class="view-controls">
+                        <div class="filter-group">
+                            <label class="filter-label">Access:</label>
+                            <select id="accessFilterSelect" class="control-select">
+                                <option value="all">All Permissions</option>
+                                <option value="private">🔒 Private Only</option>
+                                <option value="selected">👥 Co-Shared Only</option>
+                                <option value="team">🌐 Team-Wide Only</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Sort:</label>
+                            <select id="sortSelect" class="control-select">
+                                <option value="title_asc">Title (A-Z)</option>
+                                <option value="title_desc">Title (Z-A)</option>
+                                <option value="updated_desc">Recently Modified</option>
+                                <option value="quality">Password Strength</option>
+                            </select>
+                        </div>
+
+                        <div class="view-mode-toggle">
+                            <button id="viewModeList" class="mode-btn active" title="Detailed List View">☰</button>
+                            <button id="viewModeCards" class="mode-btn" title="Card Grid View">⊞</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CO-ACCESS EXPLANATION CALLOUT -->
+                <div class="co-access-banner" id="coAccessBanner">
+                    <div class="banner-icon">🛡️</div>
+                    <div class="banner-content">
+                        <strong>Granular Access Control Active:</strong> Passwords are encrypted with AES-256-GCM. You only have access to passwords that belong to your Private vault, are Co-Shared with your account, or are shared Team-Wide.
+                    </div>
+                    <button class="banner-dismiss" onclick="document.getElementById('coAccessBanner').style.display='none'">✕</button>
+                </div>
+
+                <!-- ENTRIES CONTAINER -->
+                <div class="entries-container" id="entriesContainer">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <span>Decrypting Vault & Checking Co-Access Permissions...</span>
+                    </div>
+                </div>
+            </main>
+
+            <!-- RIGHT DETAIL INSPECTOR PANE -->
+            <aside class="detail-pane" id="detailPane">
+                <div class="detail-empty-state" id="detailEmptyState">
+                    <div class="empty-icon">🔑</div>
+                    <h3>No Entry Selected</h3>
+                    <p>Select a password from the vault to view details, copy credentials, generate live MFA codes, and manage team co-access permissions.</p>
+                </div>
+
+                <div class="detail-content" id="detailContent" style="display:none;">
+                    <!-- Top Action Bar -->
+                    <div class="detail-top-bar">
+                        <button id="closeDetailBtn" class="detail-action-btn" title="Close Panel">✕</button>
+                        <div class="detail-top-actions">
+                            <button id="favoriteDetailBtn" class="detail-action-btn" title="Toggle Favorite">⭐</button>
+                            <button id="shareDetailBtn" class="detail-action-btn share-btn" title="Manage Team Co-Access">
+                                <span>👥</span>
+                                <span>Share</span>
+                            </button>
+                            <button id="editDetailBtn" class="detail-action-btn" title="Edit Entry">✏️ Edit</button>
+                            <button id="deleteDetailBtn" class="detail-action-btn danger" title="Delete Entry">🗑️</button>
+                        </div>
+                    </div>
+
+                    <!-- Header with Icon & Title -->
+                    <div class="detail-header-card">
+                        <div class="detail-entry-icon" id="detailIcon">🛡️</div>
+                        <div class="detail-title-group">
+                            <h2 class="detail-entry-title" id="detailTitle">Corporate WireGuard VPN Gateway</h2>
+                            <div class="detail-sub-meta">
+                                <span class="detail-folder-badge" id="detailFolderBadge">📁 Infrastructure & Cloud</span>
+                                <span class="detail-access-badge" id="detailAccessBadge">🌐 Team-Wide Shared</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Credential Fields Card -->
+                    <div class="detail-section-card">
+                        <div class="field-row">
+                            <div class="field-label-wrap">
+                                <span class="field-label">Username / Login</span>
+                            </div>
+                            <div class="field-value-box">
+                                <span class="field-text monospace" id="detailUsername">vpn.team.access</span>
+                                <button class="copy-action-btn" id="copyUsernameBtn" title="Copy Username">📋</button>
+                            </div>
+                        </div>
+
+                        <div class="field-row">
+                            <div class="field-label-wrap">
+                                <span class="field-label">Password</span>
+                                <span class="password-quality-label" id="detailPasswordQuality">Strong (85%)</span>
+                            </div>
+                            <div class="field-value-box">
+                                <input type="password" readonly class="field-password-input monospace" id="detailPasswordInput" value="••••••••••••••••">
+                                <button class="icon-toggle-btn" id="togglePasswordVisibilityBtn" title="Show/Hide Password">👁️</button>
+                                <button class="copy-action-btn" id="copyPasswordBtn" title="Copy Password">📋</button>
+                            </div>
+                            <div class="strength-meter-bar">
+                                <div class="strength-progress" id="detailStrengthProgress" style="width: 85%; background-color: #10b981;"></div>
+                            </div>
+                        </div>
+
+                        <!-- URL -->
+                        <div class="field-row" id="detailUrlRow">
+                            <div class="field-label-wrap">
+                                <span class="field-label">Website / Service URL</span>
+                            </div>
+                            <div class="field-value-box">
+                                <a href="#" target="_blank" rel="noopener noreferrer" class="field-link" id="detailUrlLink">https://vpn.corp.company.com</a>
+                                <button class="launch-action-btn" id="launchUrlBtn" title="Open Link">↗️</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GRANULAR TEAM CO-ACCESS INFO CARD -->
+                    <div class="detail-section-card co-access-card">
+                        <div class="card-header-line">
+                            <span class="card-title">👥 Team Co-Access Permissions</span>
+                            <button id="manageAccessBtn" class="mini-btn-link">Manage</button>
+                        </div>
+                        <div class="sharing-summary-box" id="detailSharingSummary">
+                            <!-- Dynamic team members with access -->
+                        </div>
+                    </div>
+
+                    <!-- CUSTOM FIELDS CARD -->
+                    <div class="detail-section-card" id="detailCustomFieldsCard">
+                        <div class="card-header-line">
+                            <span class="card-title">⚙️ KeePass Custom Fields</span>
+                        </div>
+                        <div class="custom-fields-list" id="detailCustomFieldsList">
+                            <!-- Dynamic Custom Fields -->
+                        </div>
+                    </div>
+
+                    <!-- NOTES CARD -->
+                    <div class="detail-section-card" id="detailNotesCard">
+                        <div class="card-header-line">
+                            <span class="card-title">📝 Secure Notes</span>
+                        </div>
+                        <div class="notes-content-box" id="detailNotesContent">
+                            <!-- Secure notes content -->
+                        </div>
+                    </div>
+
+                    <!-- PASSWORD HISTORY -->
+                    <div class="detail-section-card" id="detailHistoryCard">
+                        <details class="history-details">
+                            <summary class="history-summary">
+                                <span>📜 Password History (<span id="detailHistoryCount">0</span>)</span>
+                            </summary>
+                            <div class="history-list" id="detailHistoryList">
+                                <!-- History items -->
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- METADATA FOOTER -->
+                    <div class="detail-meta-footer">
+                        <div>Owner: <strong id="detailOwnerName">Alice</strong></div>
+                        <div>Last Modified: <span id="detailUpdatedAt">2026-01-06</span></div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- ================= MODALS ================= -->
+
+        <!-- 1. ENTRY EDITOR MODAL (Create / Edit) -->
+        <div class="modal-overlay" id="entryModal" style="display:none;">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="entryModalTitle">New Vault Entry</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('entryModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-tabs">
+                        <button class="modal-tab-btn active" data-tab="tab-general">General Credentials</button>
+                        <button class="modal-tab-btn" data-tab="tab-sharing">👥 Team Co-Access & Sharing</button>
+                        <button class="modal-tab-btn" data-tab="tab-custom">⚙️ Custom Fields</button>
+                    </div>
+
+                    <!-- TAB 1: GENERAL -->
+                    <div class="modal-tab-content active" id="tab-general">
+                        <div class="form-grid">
+                            <div class="form-group col-span-2">
+                                <label class="form-label required">Title</label>
+                                <input type="text" id="entryInputTitle" class="form-input" placeholder="e.g. AWS Production Console, Stripe API Key, Jira Portal" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">KeePass Folder / Group</label>
+                                <select id="entryInputFolder" class="form-select"></select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Icon</label>
+                                <select id="entryInputIcon" class="form-select">
+                                    <option value="🔑">🔑 Key (Default)</option>
+                                    <option value="🛡️">🛡️ Shield / Security</option>
+                                    <option value="☁️">☁️ Cloud / AWS / Azure</option>
+                                    <option value="⚡">⚡ API / Token</option>
+                                    <option value="🐘">🐘 Database / Postgres</option>
+                                    <option value="🐙">🐙 GitHub / Git</option>
+                                    <option value="🌐">🌐 Website / Web</option>
+                                    <option value="💳">💳 Finance / Banking</option>
+                                    <option value="📧">📧 Email / Inbox</option>
+                                    <option value="🔒">🔒 Private Lock</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Username / Login / Email</label>
+                                <input type="text" id="entryInputUsername" class="form-input" placeholder="e.g. admin@company.com or root">
+                            </div>
+
+                            <div class="form-group col-span-2">
+                                <div class="form-label-row">
+                                    <label class="form-label required">Password</label>
+                                    <button type="button" id="entryGenPassBtn" class="mini-tool-btn">⚡ Auto-Generate</button>
+                                </div>
+                                <div class="input-with-tools">
+                                    <input type="text" id="entryInputPassword" class="form-input monospace" placeholder="Enter secure password or click generate">
+                                </div>
+                                <div class="strength-meter-bar" style="margin-top:6px;">
+                                    <div class="strength-progress" id="modalStrengthProgress" style="width:0%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Website / Login URL</label>
+                                <input type="url" id="entryInputUrl" class="form-input" placeholder="https://app.service.com/login">
+                            </div>
+
+                            <div class="form-group col-span-2">
+                                <label class="form-label">2FA / MFA Secret Key (Base32)</label>
+                                <input type="text" id="entryInputTotp" class="form-input monospace" placeholder="e.g. JBSWY3DPEHPK3PXP (from QR code or setup key)">
+                                <span class="form-hint">Enables live 6-digit MFA token generation inside your vault</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Tags (comma separated)</label>
+                                <input type="text" id="entryInputTags" class="form-input" placeholder="prod, aws, critical">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Expires At</label>
+                                <input type="date" id="entryInputExpires" class="form-input">
+                            </div>
+
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Secure Notes</label>
+                                <textarea id="entryInputNotes" class="form-textarea" rows="3" placeholder="Additional instructions, backup recovery codes, recovery questions..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: TEAM CO-ACCESS & SHARING -->
+                    <div class="modal-tab-content" id="tab-sharing">
+                        <div class="sharing-mode-selector">
+                            <label class="form-label">Select Sharing Scope:</label>
+
+                            <div class="sharing-option-cards">
+                                <label class="sharing-radio-card">
+                                    <input type="radio" name="sharingScope" value="private" checked>
+                                    <div class="radio-card-content">
+                                        <div class="radio-card-title">🔒 Private (Only Me)</div>
+                                        <div class="radio-card-desc">Completely hidden from other team members. Only you can view or edit.</div>
+                                    </div>
+                                </label>
+
+                                <label class="sharing-radio-card">
+                                    <input type="radio" name="sharingScope" value="selected">
+                                    <div class="radio-card-content">
+                                        <div class="radio-card-title">👥 Co-Accessible by Selected Members</div>
+                                        <div class="radio-card-desc">Grant granular View or Edit permissions to specific individual team members.</div>
+                                    </div>
+                                </label>
+
+                                <label class="sharing-radio-card">
+                                    <input type="radio" name="sharingScope" value="team">
+                                    <div class="radio-card-content">
+                                        <div class="radio-card-title">🌐 Shared with Entire Team</div>
+                                        <div class="radio-card-desc">All workspace members can view and copy this credential.</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="specific-members-box" id="specificMembersBox" style="display:none;">
+                            <h4 class="box-subheading">Select Team Members & Assign Access Level:</h4>
+                            <div class="team-members-permissions-list" id="modalTeamPermissionsList"></div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: CUSTOM FIELDS -->
+                    <div class="modal-tab-content" id="tab-custom">
+                        <div class="custom-fields-toolbar">
+                            <span>Add KeePass custom key-value attributes (API keys, Pins, Port numbers, etc.):</span>
+                            <button type="button" id="addCustomFieldBtn" class="btn btn-secondary btn-sm">➕ Add Field</button>
+                        </div>
+                        <div class="custom-fields-editor-list" id="customFieldsEditorList"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('entryModal')">Cancel</button>
+                    <button class="btn btn-primary" id="saveEntrySubmitBtn">Save Vault Entry</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. GRANULAR CO-ACCESS SHARING MODAL -->
+        <div class="modal-overlay" id="sharingModal" style="display:none;">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3 class="modal-title">👥 Manage Team Co-Access</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('sharingModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="sharing-target-summary" id="sharingTargetTitle">
+                        Editing co-access for: <strong>AWS Production Master Account</strong>
+                    </div>
+
+                    <div class="sharing-mode-selector" style="margin-top:14px;">
+                        <label class="form-label">Access Mode:</label>
+                        <div class="sharing-option-cards">
+                            <label class="sharing-radio-card">
+                                <input type="radio" name="modalShareScope" value="private">
+                                <div class="radio-card-content">
+                                    <div class="radio-card-title">🔒 Private</div>
+                                    <div class="radio-card-desc">Only owner can access.</div>
+                                </div>
+                            </label>
+                            <label class="sharing-radio-card">
+                                <input type="radio" name="modalShareScope" value="selected">
+                                <div class="radio-card-content">
+                                    <div class="radio-card-title">👥 Selected Members</div>
+                                    <div class="radio-card-desc">Co-accessible by chosen teammates.</div>
+                                </div>
+                            </label>
+                            <label class="sharing-radio-card">
+                                <input type="radio" name="modalShareScope" value="team">
+                                <div class="radio-card-content">
+                                    <div class="radio-card-title">🌐 Entire Team</div>
+                                    <div class="radio-card-desc">All workspace members can access.</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="specific-members-box" id="quickShareMembersBox" style="margin-top:16px;">
+                        <h4 class="box-subheading">Team Member Permissions:</h4>
+                        <div class="team-members-permissions-list" id="quickShareTeamList"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('sharingModal')">Cancel</button>
+                    <button class="btn btn-primary" id="saveQuickShareBtn">Update Permissions</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. PASSWORD GENERATOR MODAL -->
+        <div class="modal-overlay" id="generatorModal" style="display:none;">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3 class="modal-title">🔑 KeePass Password Generator</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('generatorModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="generated-password-box">
+                        <div class="generated-string monospace" id="genResultPassword">kP9#vL8$zW2@mQ5!</div>
+                        <div class="gen-box-actions">
+                            <button class="icon-action-btn" id="regenPassBtn" title="Regenerate">🔄</button>
+                            <button class="icon-action-btn" id="copyGenPassBtn" title="Copy to Clipboard">📋</button>
+                        </div>
+                    </div>
+
+                    <div class="gen-strength-row">
+                        <div class="gen-strength-meter">
+                            <div class="gen-strength-fill" id="genStrengthFill" style="width: 90%;"></div>
+                        </div>
+                        <span class="gen-strength-label" id="genStrengthLabel">Entropy: 96 bits (Very Strong)</span>
+                    </div>
+
+                    <div class="gen-type-tabs">
+                        <button class="gen-tab active" data-gentype="random">Random Password</button>
+                        <button class="gen-tab" data-gentype="passphrase">Memorable Passphrase</button>
+                        <button class="gen-tab" data-gentype="pin">Numeric PIN</button>
+                    </div>
+
+                    <div class="gen-settings-pane active" id="genSettingsRandom">
+                        <div class="range-group">
+                            <div class="range-header">
+                                <label>Password Length:</label>
+                                <span class="range-value" id="genLengthDisplay">20</span>
+                            </div>
+                            <input type="range" id="genLengthSlider" min="8" max="64" value="20" class="form-range">
+                        </div>
+
+                        <div class="gen-checkboxes-grid">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="genCheckUpper" checked> Uppercase (A-Z)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="genCheckLower" checked> Lowercase (a-z)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="genCheckDigits" checked> Numbers (0-9)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="genCheckSymbols" checked> Special Symbols (!@#$)
+                            </label>
+                            <label class="checkbox-label col-span-2">
+                                <input type="checkbox" id="genCheckAmbiguous" checked> Avoid Ambiguous Characters (0, O, 1, l, I)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="gen-settings-pane" id="genSettingsPassphrase" style="display:none;">
+                        <div class="range-group">
+                            <div class="range-header">
+                                <label>Number of Words:</label>
+                                <span class="range-value" id="genWordsDisplay">4</span>
+                            </div>
+                            <input type="range" id="genWordsSlider" min="3" max="8" value="4" class="form-range">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Separator Character:</label>
+                            <select id="genSeparatorSelect" class="form-select">
+                                <option value="-">Hyphen (-)</option>
+                                <option value=".">Period (.)</option>
+                                <option value="_">Underscore (_)</option>
+                                <option value=" ">Space ( )</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('generatorModal')">Close</button>
+                    <button class="btn btn-primary" id="useGeneratedPassBtn">Copy Password</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. SECURITY HEALTH AUDIT MODAL -->
+        <div class="modal-overlay" id="healthModal" style="display:none;">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-header">
+                    <h3 class="modal-title">📊 Vault Security Health & Audit</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('healthModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="health-summary-dashboard">
+                        <div class="health-score-card">
+                            <div class="score-circle-wrap">
+                                <span class="score-num" id="healthScoreNum">88%</span>
+                            </div>
+                            <div class="score-title">Overall Vault Health</div>
+                        </div>
+
+                        <div class="health-stat-cards-grid">
+                            <div class="stat-card">
+                                <div class="stat-val text-red" id="healthWeakCount">0</div>
+                                <div class="stat-lbl">Weak Passwords</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-val text-amber" id="healthReusedCount">0</div>
+                                <div class="stat-lbl">Reused Passwords</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-val text-orange" id="healthExpiredCount">0</div>
+                                <div class="stat-lbl">Expired Credentials</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-val text-blue" id="healthTotalCount">6</div>
+                                <div class="stat-lbl">Total Vault Items</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="health-breakdown-section" id="healthBreakdownSection"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="app.closeModal('healthModal')">Close Health Audit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. IMMUTABLE AUDIT LOG MODAL -->
+        <div class="modal-overlay" id="auditModal" style="display:none;">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-header">
+                    <h3 class="modal-title">📜 Immutable Activity & Access Audit Log</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('auditModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-description">
+                        Every password reveal, clipboard copy, login, modification, and co-access sharing event is permanently logged with timestamps.
+                    </p>
+
+                    <div class="audit-filters-bar">
+                        <select id="auditActionFilter" class="control-select">
+                            <option value="">All Actions</option>
+                            <option value="PASSWORD_REVEALED">Password Revealed</option>
+                            <option value="PASSWORD_COPIED">Password Copied</option>
+                            <option value="ENTRY_SHARED">Co-Access Shared</option>
+                            <option value="ENTRY_CREATED">Entry Created</option>
+                            <option value="ENTRY_UPDATED">Entry Updated</option>
+                            <option value="LOGIN">User Logins</option>
+                        </select>
+                        <button id="refreshAuditBtn" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+                    </div>
+
+                    <div class="audit-table-wrap">
+                        <table class="audit-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Target Item</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('auditModal')">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. DAILY LOCAL DATABASE BACKUPS MODAL -->
+        <div class="modal-overlay" id="backupsModal" style="display:none;">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-header">
+                    <h3 class="modal-title">💾 Daily Local Database Backups & Snapshots</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('backupsModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="backup-header-line">
+                        <p class="modal-description">
+                            Automated daily backups are saved locally on this server with SHA-256 integrity checksums and rotation retention.
+                        </p>
+                        <button id="createBackupNowBtn" class="btn btn-primary btn-sm">📸 Snapshot Database Now</button>
+                    </div>
+
+                    <div class="backup-list-container" id="backupsListContainer">
+                        <div class="loading-spinner"><div class="spinner"></div><span>Loading local snapshots...</span></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('backupsModal')">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. KEEPASS .KDBX, XML & CSV IMPORT / EXPORT MODAL -->
+        <div class="modal-overlay" id="importExportModal" style="display:none;">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3 class="modal-title">🔄 KeePass .kdbx, XML & CSV Import/Export</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('importExportModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="io-tabs">
+                        <button class="io-tab-btn active" data-iotab="tab-import">📥 Import Data</button>
+                        <button class="io-tab-btn" data-iotab="tab-export">📤 Export Vault</button>
+                    </div>
+
+                    <!-- IMPORT TAB -->
+                    <div class="io-tab-pane active" id="tab-import">
+                        <div class="form-group">
+                            <label class="form-label">Select Source Format:</label>
+                            <select id="importFormatSelect" class="form-select">
+                                <option value="kdbx">KeePass 2.x Native Database (.kdbx)</option>
+                                <option value="keepass-xml">KeePass 2.x XML (.xml)</option>
+                                <option value="csv">Standard Password CSV (.csv)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="kdbxPasswordGroup">
+                            <label class="form-label">KDBX Master Password (if encrypted):</label>
+                            <input type="password" id="importMasterPasswordInput" class="form-input" placeholder="Enter .kdbx master password">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Upload File (.kdbx, .xml, .csv):</label>
+                            <input type="file" id="importFileInput" class="form-file-input" accept=".kdbx,.xml,.csv,.txt">
+                        </div>
+
+                        <div class="form-group" id="xmlCsvPasteGroup" style="display:none;">
+                            <label class="form-label">Or Paste XML / CSV Content:</label>
+                            <textarea id="importPasteContent" class="form-textarea monospace" rows="4" placeholder="Paste KeePass XML or CSV text here..."></textarea>
+                        </div>
+
+                        <button id="executeImportBtn" class="btn btn-primary" style="width:100%;">📥 Start Import</button>
+                    </div>
+
+                    <!-- EXPORT TAB -->
+                    <div class="io-tab-pane" id="tab-export" style="display:none;">
+                        <p class="io-description">
+                            Download backup of all accessible entries in standard formats:
+                        </p>
+                        <div class="export-options-list">
+                            <button type="button" id="exportXmlBtn" class="export-btn-card" style="width:100%; text-align:left; background:none; border:1px solid var(--border); cursor:pointer;">
+                                <span class="card-icon">📁</span>
+                                <div>
+                                    <div class="card-title">KeePass 2.x XML (.xml)</div>
+                                    <div class="card-sub">Compatible with desktop KeePass2 & KeePassXC</div>
+                                </div>
+                            </button>
+                            <button type="button" id="exportCsvBtn" class="export-btn-card" style="width:100%; text-align:left; background:none; border:1px solid var(--border); cursor:pointer; margin-top:8px;">
+                                <span class="card-icon">📊</span>
+                                <div>
+                                    <div class="card-title">Spreadsheet CSV (.csv)</div>
+                                    <div class="card-sub">Universal CSV table format</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('importExportModal')">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. USER MFA AUTHENTICATOR SETUP MODAL -->
+        <div class="modal-overlay" id="mfaModal" style="display:none;">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3 class="modal-title">🔐 Account MFA Authenticator</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('mfaModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="mfa-status-card" id="mfaStatusCard">
+                        <div class="mfa-status-title">Two-Factor Authentication: <strong id="mfaStatusText">Disabled</strong></div>
+                        <button id="toggleMfaEnableBtn" class="btn btn-primary btn-sm">Enable MFA</button>
+                    </div>
+
+                    <div class="mfa-setup-details" id="mfaSetupDetails" style="display:none; margin-top:16px;">
+                        <h4>Scan with Authenticator App (Google Authenticator, Microsoft, Authy):</h4>
+                        <div class="mfa-secret-box monospace" id="mfaSecretDisplay">JBSWY3DPEHPK3PXP</div>
+                        <span class="form-hint">Or manually enter the secret key above into your authenticator app.</span>
+
+                        <div class="recovery-codes-section" style="margin-top:16px;">
+                            <h5>Emergency Backup Recovery Codes:</h5>
+                            <div class="recovery-codes-grid" id="recoveryCodesGrid"></div>
+                            <span class="form-hint">Save these codes in a secure place. Each code can be used once if you lose your authenticator.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('mfaModal')">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. TEAM MEMBERS & ROLES MODAL -->
+        <div class="modal-overlay" id="teamModal" style="display:none;">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-header">
+                    <h3 class="modal-title">👥 Team Members & Access Roles</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('teamModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="team-management-header">
+                        <p class="modal-description">
+                            Manage team members who can be granted co-access to passwords and shared groups.
+                        </p>
+                        <button id="addNewMemberBtn" class="btn btn-primary btn-sm">➕ Add Member</button>
+                    </div>
+
+                    <div class="team-cards-grid" id="teamCardsGrid"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('teamModal')">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD TEAM MEMBER MODAL -->
+        <div class="modal-overlay" id="addMemberModal" style="display:none; z-index: 1050;">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3 class="modal-title">➕ Add New Team Member</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('addMemberModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <form id="addMemberForm" onsubmit="event.preventDefault(); app.saveNewMember();">
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label required">Display Name</label>
+                            <input type="text" id="newMemberDisplayName" class="form-input" placeholder="e.g. David Vance (Cloud Architect)" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label required">Username (Login ID)</label>
+                            <input type="text" id="newMemberUsername" class="form-input" placeholder="e.g. david" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" id="newMemberEmail" class="form-input" placeholder="david@company.local">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label required">Temporary Master Password</label>
+                            <div style="display:flex; gap:6px;">
+                                <input type="text" id="newMemberPassword" class="form-input monospace" placeholder="Password (e.g. David123!@#)" required>
+                                <button type="button" class="btn btn-secondary btn-sm" id="genMemberPassBtn">⚡ Gen</button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label">Access Role</label>
+                            <select id="newMemberRole" class="form-select">
+                                <option value="member" selected>👤 Team Member (Standard Vault Access)</option>
+                                <option value="manager">👩‍💼 Team Manager (Granular Co-Access & Team Lead)</option>
+                                <option value="admin">🛡️ System Administrator (Full System Control)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label">Avatar</label>
+                            <select id="newMemberAvatar" class="form-select">
+                                <option value="👤">👤 Default User</option>
+                                <option value="👩‍💻">👩‍💻 Developer / Engineer</option>
+                                <option value="👨‍💻">👨‍💻 Software Architect</option>
+                                <option value="🕵️">🕵️ Security Analyst</option>
+                                <option value="🎨">🎨 Designer / Frontend</option>
+                                <option value="⚡">⚡ DevOps / SRE</option>
+                                <option value="📊">📊 Data Scientist</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px;">
+                                <input type="checkbox" id="newMemberMfaEnabled">
+                                <span>Require 2FA Authenticator (Google / Microsoft Authenticator)</span>
+                            </label>
+                        </div>
+                        <div id="addMemberError" style="display:none; color:#ef4444; font-size:13px; margin-bottom:10px; font-weight:500;"></div>
+                        <div class="modal-footer" style="padding:12px 0 0 0; margin-top:16px;">
+                            <button type="button" class="btn btn-secondary" onclick="app.closeModal('addMemberModal')">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="saveNewMemberBtn">➕ Create Member</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. FOLDER / GROUP CREATOR MODAL -->
+        <div class="modal-overlay" id="folderModal" style="display:none;">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3 class="modal-title">📁 New KeePass Group</h3>
+                    <button class="modal-close-btn" onclick="app.closeModal('folderModal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label required">Group Name</label>
+                        <input type="text" id="folderInputName" class="form-input" placeholder="e.g. Production APIs, AWS, Personal" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Icon</label>
+                        <select id="folderInputIcon" class="form-select">
+                            <option value="📁">📁 Folder</option>
+                            <option value="☁️">☁️ Cloud / AWS</option>
+                            <option value="⚡">⚡ Development & APIs</option>
+                            <option value="📢">📢 Marketing</option>
+                            <option value="🌐">🌐 General</option>
+                            <option value="🔒">🔒 Private / Restricted</option>
+                            <option value="🛡️">🛡️ Security & Ops</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Parent Group</label>
+                        <select id="folderInputParent" class="form-select">
+                            <option value="f_root">Root</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeModal('folderModal')">Cancel</button>
+                    <button class="btn btn-primary" id="saveFolderBtn">Create Group</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 11. SECURE TWO-STEP LOGIN & LOCK SCREEN (PASSWORD + GOOGLE/MS AUTHENTICATOR) -->
+        <div class="lock-screen-overlay" id="lockScreenOverlay" style="display:none;">
+            <div class="lock-screen-card">
+                <div class="lock-icon-wrap" id="loginLockIcon">🛡️</div>
+                <h2 id="loginModalTitle" style="font-size: 20px; font-weight: 700; margin-bottom: 6px;">KeePass Web Login</h2>
+                <p id="loginModalSubtitle" style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
+                    Secure Vault Authentication
+                </p>
+
+                <!-- STEP 1: USERNAME & MASTER PASSWORD -->
+                <form id="loginStep1Form" onsubmit="event.preventDefault(); app.handleLoginStep1();">
+                    <div class="form-group" style="text-align: left; margin-bottom: 14px;">
+                        <label class="form-label required">Select Account or Username</label>
+                        <select id="loginUserSelect" class="form-select" onchange="app.onLoginUserSelectChange()">
+                            <option value="admin">🛡️ Admin (System Administrator)</option>
+                            <option value="alice" selected>👩‍💻 Alice (DevOps Lead)</option>
+                            <option value="bob">👨‍🎨 Bob (Frontend Developer)</option>
+                            <option value="charlie">🕵️ Charlie (Security Analyst)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="text-align: left; margin-bottom: 14px;">
+                        <label class="form-label required">Master Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="loginPasswordInput" class="form-input" placeholder="Enter password (e.g. Alice123!@#)" required autofocus>
+                            <button type="button" class="icon-toggle-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;" onclick="app.toggleLoginPassVisibility()">👁️</button>
+                        </div>
+                        <span class="form-hint" id="loginPassHint">Default password: <code>Alice123!@#</code></span>
+                    </div>
+
+                    <div class="login-error-msg" id="loginStep1Error" style="display:none; color: #ef4444; margin-bottom: 12px; font-size: 13px; font-weight: 500;"></div>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="loginStep1Btn" style="width: 100%; padding: 10px 16px; font-size: 14px; font-weight: 600;">
+                        <span>Continue to 2FA</span> ➡️
+                    </button>
+                </form>
+
+                <!-- STEP 2: GOOGLE / MICROSOFT AUTHENTICATOR 2FA -->
+                <form id="loginStep2Form" style="display:none;" onsubmit="event.preventDefault(); app.handleLoginStep2();">
+                    <div class="mfa-step-banner" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 12px; text-align: left; margin-bottom: 16px;">
+                        <div style="font-weight: 600; color: #38bdf8; font-size: 13px; margin-bottom: 4px;">📱 2FA Authenticator Required</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                            Open <strong>Google Authenticator</strong> or <strong>Microsoft Authenticator</strong> on your device and enter the current 6-digit code.
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label class="form-label required" style="font-size: 13px;">6-Digit Verification Code</label>
+                        <input type="text" id="loginMfaCodeInput" class="form-input text-center monospace" maxlength="8" placeholder="••• •••" style="font-size: 24px; letter-spacing: 6px; font-weight: 700; height: 50px; border-color: #38bdf8;" autocomplete="one-time-code">
+                        <span class="form-hint">Enter the 6-digit TOTP code or an 8-character recovery code</span>
+                    </div>
+
+                    <div class="login-error-msg" id="loginStep2Error" style="display:none; color: #ef4444; margin-bottom: 12px; font-size: 13px; font-weight: 500;"></div>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="loginStep2Btn" style="width: 100%; padding: 10px 16px; font-size: 14px; font-weight: 600;">
+                        <span>🔓 Verify Code & Open Vault</span>
+                    </button>
+
+                    <!-- Authenticator Setup Helper & Quick Test -->
+                    <div class="auth-helper-box" style="margin-top: 16px; text-align: left; background: rgba(255,255,255,0.04); border-radius: 8px; padding: 10px; border: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">📱 Authenticator Secret & Auto-Fill</span>
+                            <button type="button" class="mini-btn-link" onclick="app.toggleAuthHelperDetails()" id="toggleAuthHelperBtn" style="font-size: 11px; background: none; border: none; color: #38bdf8; cursor: pointer;">Show Key</button>
+                        </div>
+                        <div id="authHelperDetails" style="display:none; margin-top: 10px;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
+                                Secret Key for <strong>Google / Microsoft Authenticator</strong>:
+                            </div>
+                            <div class="monospace" id="loginMfaSecretBox" style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; color: #38bdf8; word-break: break-all;">HXDMVJECJJWSRB3H</div>
+                            <div style="margin-top: 8px;">
+                                <button type="button" class="btn btn-sm btn-secondary" onclick="app.autoFillLiveMfaCode()" style="font-size: 11px; padding: 4px 8px; width: 100%;">
+                                    ⚡ Auto-Fill Current Authenticator Code
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 14px;">
+                        <button type="button" class="btn-link" onclick="app.backToLoginStep1()" style="font-size: 13px; color: var(--text-muted); background: none; border: none; cursor: pointer;">
+                            ⬅️ Back to Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TOAST ALERTS & CLIPBOARD PROGRESS -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/app.js"></script>
+</body>
+</html>

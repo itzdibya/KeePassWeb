@@ -1,0 +1,436 @@
+{
+  "metadata": {
+    "label": "Automated Verification Test Snapshot",
+    "createdAt": "2026-09-02T12:12:15.264Z",
+    "checksum": "sha256:6f7e0e3a3f2fd136d04e637e7ba25b12e333c7a4648746c75584305177b85c9e",
+    "version": "2.0.0",
+    "nodeVersion": "v20.20.2"
+  },
+  "payload": {
+    "users": [
+      {
+        "id": "u_admin",
+        "username": "admin",
+        "displayName": "Admin (System Administrator)",
+        "email": "admin@company.local",
+        "passwordHash": "cc0e3fcd61441597675ce4c4e586cf2c59d160e367b875f238453e3a761fcb309e0d6d337454b4ac93b87d116cf9488fa4f499c244e32117accb4d79535d95cc",
+        "salt": "efb866c70a049470281907fea63b16b9a52390b0bd34627dfb9465b091dfdb44",
+        "role": "admin",
+        "avatar": "🛡️",
+        "mfaSecret": "JBSWY3DPEHPK3PXP",
+        "mfaEnabled": true,
+        "recoveryCodes": [
+          "78E1-4224",
+          "8268-6741",
+          "DB51-A5F9",
+          "BA3B-7FCC"
+        ],
+        "ssoProvider": null,
+        "ssoSub": null,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "status": "active"
+      },
+      {
+        "id": "u_alice",
+        "username": "alice",
+        "displayName": "Alice (DevOps Lead)",
+        "email": "alice@company.local",
+        "passwordHash": "9009c0840b0c775fb4a6b87843e3d75f80d8a1aa5b0574eb5a34dcbf1435986fb5ccfe730abbbb21e67dc362dac1e4d1496321a379f1277d49e62fc5875bd73f",
+        "salt": "287e4b21f7991ef3f5492b3f833ac8fa2ebadf23c1b03b66a087be7b01e7cfd6",
+        "role": "manager",
+        "avatar": "👩‍💻",
+        "mfaSecret": "HXDMVJECJJWSRB3H",
+        "mfaEnabled": true,
+        "recoveryCodes": [
+          "65A2-CE08",
+          "1F78-67A7",
+          "E02C-3216",
+          "FD69-471C"
+        ],
+        "ssoProvider": null,
+        "ssoSub": null,
+        "createdAt": "2026-01-05T00:00:00.000Z",
+        "status": "active"
+      },
+      {
+        "id": "u_bob",
+        "username": "bob",
+        "displayName": "Bob (Frontend Developer)",
+        "email": "bob@company.local",
+        "passwordHash": "b9cffe531a4b264b6d73a0cc4e1dc5b74bea78801a6b5a4b942aa3f2c1731d7a78b5dbdd7a91a9a7a98b8466be4819afa34cefabcc8743472ed8ad8d6f131b2f",
+        "salt": "0c59eb6403a02eb33b9c4d894f8e64a5228a0f8f460a5ae7fbe2209ad99d5db7",
+        "role": "member",
+        "avatar": "👨‍🎨",
+        "mfaSecret": "GEZDGNBVGY3TQOJQ",
+        "mfaEnabled": true,
+        "recoveryCodes": [
+          "D661-15C2",
+          "FED6-E6D6",
+          "69CD-B471",
+          "14AA-68B5"
+        ],
+        "ssoProvider": null,
+        "ssoSub": null,
+        "createdAt": "2026-01-10T00:00:00.000Z",
+        "status": "active"
+      },
+      {
+        "id": "u_charlie",
+        "username": "charlie",
+        "displayName": "Charlie (Security Analyst)",
+        "email": "charlie@company.local",
+        "passwordHash": "ea0c839b6fb5dc8a29e668bf7d7df33e8f3186f455f673e5aef908254c62988c8068bdb9244c5b0a804f38df82238e3b8d28d557def6308c5b628f4c123f5b65",
+        "salt": "5628db6c50feac9e0839b18c18f36bb6a2a3e94d1bed6b739c8d1d889f3983de",
+        "role": "member",
+        "avatar": "🕵️",
+        "mfaSecret": "MZXW6YTBOI======",
+        "mfaEnabled": true,
+        "recoveryCodes": [
+          "1465-2219",
+          "CF69-E6A9",
+          "4913-727A",
+          "6530-F33A"
+        ],
+        "ssoProvider": null,
+        "ssoSub": null,
+        "createdAt": "2026-01-15T00:00:00.000Z",
+        "status": "active"
+      }
+    ],
+    "folders": [
+      {
+        "id": "f_root",
+        "parentId": null,
+        "name": "Root",
+        "icon": "📁",
+        "color": "#6366f1",
+        "ownerId": "u_admin",
+        "isShared": true
+      },
+      {
+        "id": "f_infra",
+        "parentId": "f_root",
+        "name": "Infrastructure & Cloud",
+        "icon": "☁️",
+        "color": "#3b82f6",
+        "ownerId": "u_alice",
+        "isShared": true
+      },
+      {
+        "id": "f_dev",
+        "parentId": "f_root",
+        "name": "Development & APIs",
+        "icon": "⚡",
+        "color": "#10b981",
+        "ownerId": "u_alice",
+        "isShared": true
+      },
+      {
+        "id": "f_marketing",
+        "parentId": "f_root",
+        "name": "Marketing & Portals",
+        "icon": "📢",
+        "color": "#f59e0b",
+        "ownerId": "u_bob",
+        "isShared": true
+      },
+      {
+        "id": "f_general",
+        "parentId": "f_root",
+        "name": "General Accounts",
+        "icon": "🌐",
+        "color": "#8b5cf6",
+        "ownerId": "u_admin",
+        "isShared": true
+      },
+      {
+        "id": "f_personal_alice",
+        "parentId": null,
+        "name": "Alice Private Vault",
+        "icon": "🔒",
+        "color": "#ec4899",
+        "ownerId": "u_alice",
+        "isShared": false
+      },
+      {
+        "id": "f_personal_bob",
+        "parentId": null,
+        "name": "Bob Private Vault",
+        "icon": "🔒",
+        "color": "#ec4899",
+        "ownerId": "u_bob",
+        "isShared": false
+      }
+    ],
+    "entries": [
+      {
+        "id": "e_1",
+        "folderId": "f_infra",
+        "ownerId": "u_admin",
+        "title": "Corporate WireGuard VPN Gateway",
+        "username": "vpn.team.access",
+        "encryptedPassword": "7c602d7d7e1cb9e07dfb294b:ab3241ef91a9fe85b51d53b6e9dc663d:33915c768270f904cff532f2df7839ac85e8f38fef2b4a",
+        "url": "https://vpn.corp.company.com:51820",
+        "notesEncrypted": "98da3396e90783dc3c9c5238:587fa28816d68b21c53e8e6207c897a8:4fe413604ba202f97ca342200b06914cc5abb5e4ad11ce3f80990592100f24a3915a998c5fddc214318b51ffd1e3b92bd59fdd8122da8040b8a6f6e040a4d0653617bd7d88ba59b49e2f8ab68732e4448811828408bbb3099b8faef8e30df1cddc",
+        "customFieldsEncrypted": "43444d95e43ba033a322f33c:4f0b0ab1c1fcbde5b846e67325e8ff6b:796587d07b8e6ad4caa21ae75a0bdcfbe101c827632a9c529f213c57d8b73258929b0dec19363dec9098023947ca7202d0062b446b20f2b848c2398b58b88b269471af7122be62511a5c617686238deee12fa9ec93de5e797366338889140a7d889429f7fc008d3427ce132d6d4d1314e5bd0d4f3f1896b476fcfa8d3385a645a0857666fe8e08e21739de377c90b7aae6",
+        "totpSecretEncrypted": "bc05bbc64b36793a86e70754:794168473bb364037ddf06f5d3db07e6:6f38598a44b5add5570bcafa23f88a17",
+        "tags": [
+          "vpn",
+          "infrastructure",
+          "team-wide"
+        ],
+        "icon": "🛡️",
+        "color": "#3b82f6",
+        "expiresAt": "2027-12-31",
+        "isFavorite": true,
+        "inRecycleBin": false,
+        "sharingMode": "team",
+        "createdAt": "2026-01-02T10:00:00.000Z",
+        "updatedAt": "2026-01-02T10:00:00.000Z"
+      },
+      {
+        "id": "e_2",
+        "folderId": "f_infra",
+        "ownerId": "u_alice",
+        "title": "AWS Production Master Account",
+        "username": "aws-admin@company.com",
+        "encryptedPassword": "9bdabac2c277e54634128f05:d4d414a4e159736eae69c07a6854266c:98fbbd9806885a3c378431be0fdcffae4c0b93debcc47150",
+        "url": "https://signin.aws.amazon.com/console",
+        "notesEncrypted": "e0f6d127c36f9f78ca465801:a6000974701231b1d57998157ccb6e8e:3c0b4cc9f48042edd917534f286c465c9c07be0c94d139ff93f468b054ce03f06e23fd02adb54a09877c458162ac149f5c5548434169edd9ce0d93bd276a81829722431f5ba52be105fc30b31f418d99e45166db23ca3bb2efefa5710871c00ae2356096fcc37b9f2b71cf9bc8ad673c244fae64e5cbc395083751b481",
+        "customFieldsEncrypted": "b8dfe9b2fb90876081b85cef:e86e9ff9a3c3f6098a9bf70e7ad55879:d813abd3cb15d5d4a3786448054b98644214cc31702aeecf925ed7cb8d12c8aa6713666a3060253b20270b874f7fc2844fd40235ed35955b8db7f30b9ec136b9ce9bb8cda785068294d99a8e5febd04c63e065fcfc93ce02e11da779a378c3ed973f2dc696fa18a8b01ec849fc5f9fe403b7fae2c978051b97cfe466a291aa2e6003e416770b04c33f999f5f3c82b0dc4400d868ef76a7325b1dbebcb0daa22f79fb55b29e4233d09de14068f0bf37e63076405755b239b9c6b0d03aa5e3f8afaa127219f5a78499fd4f956d1faa30cdb4ab28e913aa82ed3f722882efbd3ddde5dd77",
+        "totpSecretEncrypted": "5be4c38afea681e1bde6bb2b:256b5d420e3a862a8e4834b51e9bf428:010dd82a2a35d6d75f726993ddf6e445a647f9e28aa1a7693035f56c91265b4e",
+        "tags": [
+          "aws",
+          "cloud",
+          "co-access",
+          "restricted"
+        ],
+        "icon": "☁️",
+        "color": "#ef4444",
+        "expiresAt": null,
+        "isFavorite": true,
+        "inRecycleBin": false,
+        "sharingMode": "selected",
+        "createdAt": "2026-01-06T14:30:00.000Z",
+        "updatedAt": "2026-01-06T14:30:00.000Z"
+      },
+      {
+        "id": "e_3",
+        "folderId": "f_dev",
+        "ownerId": "u_alice",
+        "title": "PostgreSQL Staging Cluster",
+        "username": "pg_staging_admin",
+        "encryptedPassword": "f060f62123ae72349724cf7a:11366b410bd1551f40e785c7f29040cd:ede191c82d2430964da5a1f3ebfe1763225024e7790c6c",
+        "url": "postgresql://db-staging.internal:5432/app_staging",
+        "notesEncrypted": "c6d22f1536f9eec75f195bcd:817a27434e3eb0ee6fbb403695adc365:15933cb0dbe49800f429f2c44681a008300b4cb201cdd17d79fb9dea91a2f14653ef4fbc694ac394412b2fbec481569ac00b27da7ebd0e137fc3878556edc4c3eea1c350583e5ab0a0ff29408616d0c14f9f86e744454f803301a49f54a9f5436ce1e5d6c907c223eb1c3db0d066",
+        "customFieldsEncrypted": "f885ede747ca2d393422a456:6ea482572b8dccfd6c78a203732a7c7d:bd23502c994f479f8b084af4aac71ca8c8e7e3d1d91f119206ac03954d88787145c45e0a241e7c937480cd3d34d97dfd80f9678535762a859d651f6338ffe6cd1178317b2abf711ac680c97bdac8229847dd8a8692c6e1ef1dd2db0d109c8d0e25009c4ba9abc7e1714e41d6a71a805683ef4c98909d101c22",
+        "totpSecretEncrypted": "",
+        "tags": [
+          "database",
+          "staging",
+          "dev"
+        ],
+        "icon": "🐘",
+        "color": "#10b981",
+        "expiresAt": null,
+        "isFavorite": false,
+        "inRecycleBin": false,
+        "sharingMode": "selected",
+        "createdAt": "2026-01-12T09:15:00.000Z",
+        "updatedAt": "2026-01-12T09:15:00.000Z"
+      },
+      {
+        "id": "e_4",
+        "folderId": "f_dev",
+        "ownerId": "u_admin",
+        "title": "GitHub Enterprise Org Bot",
+        "username": "company-ci-bot",
+        "encryptedPassword": "8c8804afd3e1609aa3e138cd:47c7ca22969a955aa7c8a4d3c035a2be:0bb84ab307be704e8adc3f2cc31492a3b3160fe1f83c5ea4e000d969d92a3007ed44",
+        "url": "https://github.com/organizations/company-corp",
+        "notesEncrypted": "e768ac2cf42837480d80ee3a:ed814f0380d122a29b8ac99371403a29:3bca1619de834eefadffdaf3876638152a5f131cbd7f30b7f61a13349dab4701fe14cf62402b39b5bfc768f96919e22cec5ca9a5d94aead407a482e4fc2699a1e145d137d3e0f542f2a0734cb2a78165cec52bf1c4c103",
+        "customFieldsEncrypted": "d205c32c2f6390b3a565f8af:d8459c933a3ed7d3522babed2e8e388d:5403d464a4f0ab202cbea892af901572b984373e9172a963d60ae81718fac0f1d5739588957cf6557fa1ae317d53afe6c1a8bddedebd4360a4ff835bfa29461fe6573ac06f857a38eab23dba9bb0fb210cb62b6bbf68a7a5e83eb43774c1bcc272de421fd0fffcfc5104a6e2951574d7d80edb024d254aa45cc17519376a5a8745ffe98723ae57397772e3da179614dc59d8c75733159b759463022d04d13d7c9ecb9b17749f3ccdfb0003",
+        "totpSecretEncrypted": "7d0e329314fb6f4f62f76b46:cb7d693716ddad44f1ca602ee9004711:c57b27a44c49942c37afe26034ddcf5b6ba66e5587ccfc02d792acbcc77d9387",
+        "tags": [
+          "github",
+          "git",
+          "ci-cd",
+          "team-wide"
+        ],
+        "icon": "🐙",
+        "color": "#6366f1",
+        "expiresAt": "2026-11-30",
+        "isFavorite": true,
+        "inRecycleBin": false,
+        "sharingMode": "team",
+        "createdAt": "2026-01-03T11:00:00.000Z",
+        "updatedAt": "2026-01-03T11:00:00.000Z"
+      },
+      {
+        "id": "e_5",
+        "folderId": "f_personal_alice",
+        "ownerId": "u_alice",
+        "title": "Chase Personal Banking & Savings",
+        "username": "alice.private.chase",
+        "encryptedPassword": "ca8d97b29b3bcfa354734804:23d65737cb5cb3a85af1220a255c9d6e:0af402f40399c84d7cdc4a8bb7cc121d95bf7959a8bd774ef7",
+        "url": "https://secure.chase.com",
+        "notesEncrypted": "fb69a8e768221d41506b1f57:c78d15c7b0f4c48947dcf1551e0cbb00:9402071215e3e567e53eee65ef3d6348c3245e0372c6ed19b25377dc94d83f8a30b9bc6775871513a9da15ac890051bce2cc3af2b0cedbc5587cc8e4bfb192b300fb0a83d6",
+        "customFieldsEncrypted": "22004b96a229a38ebae28c35:ddb43f7c09342963621432ba0f89d70a:f5f6f988e8ed10bfb27285280bda8cdb597c7878de3304674cdc033f1e057f36e983d248f6b8d322c6be3eb044d980230d2458476b45d6712626a5d5336bb2ddc4eae4b8",
+        "totpSecretEncrypted": "",
+        "tags": [
+          "personal",
+          "banking",
+          "private"
+        ],
+        "icon": "🔒",
+        "color": "#ec4899",
+        "expiresAt": null,
+        "isFavorite": true,
+        "inRecycleBin": false,
+        "sharingMode": "private",
+        "createdAt": "2026-01-10T16:00:00.000Z",
+        "updatedAt": "2026-01-10T16:00:00.000Z"
+      },
+      {
+        "id": "e_6",
+        "folderId": "f_personal_bob",
+        "ownerId": "u_bob",
+        "title": "Bob Personal Google Account",
+        "username": "bob.developer.personal@gmail.com",
+        "encryptedPassword": "71654379d0d891a9dd6f591e:150e535f56aeb2048437b0e25c858fa9:db9132c13af05916e65413ed6c0f5ecde17364f5",
+        "url": "https://accounts.google.com",
+        "notesEncrypted": "aa818a2c905881c5fda8bdfd:80cb1576a928884b8e4b9ca047f67b5f:1e7141aed200116f38dd3b1efb2e195e7377b16f6caf0e3bbb5c2d28957b385ea58d816e2e1d603ba2",
+        "customFieldsEncrypted": "849a0805612a1948fd160f01:26058a2a1457c9f2477fd948e4980202:188b",
+        "totpSecretEncrypted": "",
+        "tags": [
+          "personal",
+          "private"
+        ],
+        "icon": "🔒",
+        "color": "#ec4899",
+        "expiresAt": null,
+        "isFavorite": false,
+        "inRecycleBin": false,
+        "sharingMode": "private",
+        "createdAt": "2026-01-11T12:00:00.000Z",
+        "updatedAt": "2026-01-11T12:00:00.000Z"
+      }
+    ],
+    "entryShares": [
+      {
+        "id": "es_1",
+        "entryId": "e_2",
+        "userId": "u_charlie",
+        "permission": "viewer",
+        "grantedBy": "u_alice",
+        "createdAt": "2026-01-06T14:35:00.000Z"
+      },
+      {
+        "id": "es_2",
+        "entryId": "e_3",
+        "userId": "u_bob",
+        "permission": "editor",
+        "grantedBy": "u_alice",
+        "createdAt": "2026-01-12T09:20:00.000Z"
+      }
+    ],
+    "passwordHistory": [
+      {
+        "id": "ph_1",
+        "entryId": "e_1",
+        "encryptedPassword": "07198e4472f2b4c9d0c712a7:ef368a5788e8453ba11e50a122b01a90:eda5996df3f578af4df3cb52f735a8adafeda3",
+        "changedBy": "u_admin",
+        "changedAt": "2026-01-01T10:00:00.000Z"
+      }
+    ],
+    "auditLogs": [
+      {
+        "id": "al_1788350972176_thn1",
+        "userId": "u_alice",
+        "username": "alice",
+        "action": "PASSWORD_REVEALED",
+        "entryId": "e_2",
+        "entryTitle": "AWS Production Master Account",
+        "ip": "::1",
+        "details": "Decrypted and viewed credentials for \"AWS Production Master Account\"",
+        "timestamp": "2026-09-02T12:09:32.176Z"
+      },
+      {
+        "id": "al_1788350969832_34bl",
+        "userId": "u_alice",
+        "username": "alice",
+        "action": "LOGIN",
+        "entryId": null,
+        "entryTitle": null,
+        "ip": "::1",
+        "details": "Fast role switch (Multi-User Co-Access Demo)",
+        "timestamp": "2026-09-02T12:09:29.832Z"
+      },
+      {
+        "id": "al_1788348726781_v76p",
+        "userId": "u_admin",
+        "username": "admin",
+        "action": "PASSWORD_REVEALED",
+        "entryId": "e_2",
+        "entryTitle": "AWS Production Master Account",
+        "ip": "::1",
+        "details": "Decrypted and viewed credentials for \"AWS Production Master Account\"",
+        "timestamp": "2026-09-02T11:32:06.781Z"
+      },
+      {
+        "id": "al_1788348499021_fs7k",
+        "userId": "u_admin",
+        "username": "admin",
+        "action": "LOGIN",
+        "entryId": null,
+        "entryTitle": null,
+        "ip": "::1",
+        "details": "Fast role switch (Multi-User Co-Access Demo)",
+        "timestamp": "2026-09-02T11:28:19.021Z"
+      },
+      {
+        "id": "al_1788348455383_fntr",
+        "userId": "u_alice",
+        "username": "alice",
+        "action": "LOGIN",
+        "entryId": null,
+        "entryTitle": null,
+        "ip": "::1",
+        "details": "Fast role switch (Multi-User Co-Access Demo)",
+        "timestamp": "2026-09-02T11:27:35.383Z"
+      },
+      {
+        "id": "al_1",
+        "userId": "u_admin",
+        "username": "admin",
+        "action": "LOGIN",
+        "entryId": null,
+        "entryTitle": null,
+        "ip": "127.0.0.1",
+        "details": "System Administrator logged in (Salt Hashing verified)",
+        "timestamp": "2026-01-02T09:00:00.000Z"
+      },
+      {
+        "id": "al_2",
+        "userId": "u_alice",
+        "username": "alice",
+        "action": "ENTRY_SHARED",
+        "entryId": "e_2",
+        "entryTitle": "AWS Production Master Account",
+        "ip": "127.0.0.1",
+        "details": "Granted viewer co-access to Charlie (Security Analyst)",
+        "timestamp": "2026-01-06T14:35:00.000Z"
+      },
+      {
+        "id": "al_3",
+        "userId": "u_alice",
+        "username": "alice",
+        "action": "ENTRY_SHARED",
+        "entryId": "e_3",
+        "entryTitle": "PostgreSQL Staging Cluster",
+        "ip": "127.0.0.1",
+        "details": "Granted editor co-access to Bob (Frontend Developer)",
+        "timestamp": "2026-01-12T09:20:00.000Z"
+      }
+    ]
+  }
+}

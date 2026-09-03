@@ -1,0 +1,22 @@
+{
+  "name": "keepass-web-team",
+  "version": "2.0.0",
+  "description": "KeePass2 Web Edition with Granular Team Co-Access, TOTP & Audit Logging",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node test/test-crypto.js"
+  },
+  "keywords": [
+    "keepass",
+    "password-manager",
+    "team-passwords",
+    "co-access",
+    "totp",
+    "security"
+  ],
+  "author": "KeePass Web Team",
+  "license": "MIT"
+}
