@@ -78,11 +78,12 @@ Automatically detect any file changes, run pre-push tests, and push to GitHub:
 npm run sync:watch
 ```
 
-### 3. Background Daemon with PM2
-The auto-sync daemon is registered in `ecosystem.config.js`:
+### 3. Integrated Daemon with PM2
+The auto-sync daemon is embedded directly inside `server.js`, so you only need a single `keepass2` process running in PM2:
 ```bash
-pm2 start ecosystem.config.js --only keepass2-autosync
+pm2 restart keepass2
 ```
+
 
 ### 4. GitHub Actions CI
 Every commit pushed to `master` triggers the automated CI workflow in `.github/workflows/ci.yml` across Node.js 18.x and 20.x.
