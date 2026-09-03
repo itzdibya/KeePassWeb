@@ -5,3 +5,4 @@ backups/
 .env
 .env.*
 .tmp
+sso-auth.js
