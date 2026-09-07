@@ -390,6 +390,17 @@
   ],
   "auditLogs": [
     {
+      "id": "al_1788761201081_n0q0",
+      "userId": "u_alice",
+      "username": "alice",
+      "action": "LOGIN_MFA_SUCCESS",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "10.200.58.59",
+      "details": "Logged in with MFA Authenticator",
+      "timestamp": "2026-09-07T06:06:41.081Z"
+    },
+    {
       "id": "al_1788427408381_6kix",
       "userId": "u_alice",
       "username": "alice",
