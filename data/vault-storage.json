@@ -12,10 +12,10 @@
       "mfaSecret": "JBSWY3DPEHPK3PXP",
       "mfaEnabled": false,
       "recoveryCodes": [
-        "78E1-4224",
-        "8268-6741",
-        "DB51-A5F9",
-        "BA3B-7FCC"
+        "rc_sha256:74837408ee853dfb1e6017bc0d374d12e116ea1ddb4ca21fcbf0ef99fce04e0d",
+        "rc_sha256:37b1375956265ca3db906480d0ba0d267250213d21fe96260a12372438d2d2b2",
+        "rc_sha256:11736e0ca397eda9a2d6fcdc046ba0d2c0b000fd1a3f2a56ce187e1d2a893e7e",
+        "rc_sha256:b0962799e735ab0524c068c89fd158e7527cc05c729386877d005269c0a5b03a"
       ],
       "ssoProvider": null,
       "ssoSub": null,
@@ -34,10 +34,10 @@
       "mfaSecret": "HXDMVJECJJWSRB3H",
       "mfaEnabled": true,
       "recoveryCodes": [
-        "65A2-CE08",
-        "1F78-67A7",
-        "E02C-3216",
-        "FD69-471C"
+        "rc_sha256:ad0292e5edea553c9a842c359c8592722e11cabc1017d7ade2e95adcf47b802c",
+        "rc_sha256:8b2a643ae2c14793387b32acb98816c110ed88f1e06cef304978d7240201e412",
+        "rc_sha256:24f6f26e969190421ec1f4976857a28360608ad6b3a5506389f2aee1f8d4d0ff",
+        "rc_sha256:182d204f7f16a5f18401ebeed4bbce63c9e58180ae8ba6d9240c8ee791e6d4f9"
       ],
       "ssoProvider": null,
       "ssoSub": null,
@@ -56,10 +56,10 @@
       "mfaSecret": "GEZDGNBVGY3TQOJQ",
       "mfaEnabled": false,
       "recoveryCodes": [
-        "D661-15C2",
-        "FED6-E6D6",
-        "69CD-B471",
-        "14AA-68B5"
+        "rc_sha256:0af19ec1323dfe2835274aaed53e16d811f6f704e6895d535cc333d78fab3dfb",
+        "rc_sha256:fc5773478599385fd6155ec269251af5b15496accec6fdf5b330bbf24e2ad7bb",
+        "rc_sha256:fc0c617fc567299beb0c053bab4c7bc2d2e07c0db1d1da0f62dbc082318a9bfc",
+        "rc_sha256:a4870cf75a5165b851a22fa66eb49c5f3628acce7678557c8aefaedc0fd0d2b1"
       ],
       "ssoProvider": null,
       "ssoSub": null,
@@ -78,10 +78,10 @@
       "mfaSecret": "MZXW6YTBOI======",
       "mfaEnabled": false,
       "recoveryCodes": [
-        "1465-2219",
-        "CF69-E6A9",
-        "4913-727A",
-        "6530-F33A"
+        "rc_sha256:91fd18f145f4c63b7e95ae68f01a779f9203b1e91d34868d6cf82ad1f8a7e3ae",
+        "rc_sha256:03507f3453838b146642c637d737e66860fe53282d9f5496c31a53568bf08f95",
+        "rc_sha256:4ee932a1db10430448ae19261a32e6f75906adf44d1332b5754fff4f3b070dbb",
+        "rc_sha256:8c74bdf9540015fd6b9334e2f7a5cd261ee68e9efe64da44af4de271fdaf959b"
       ],
       "ssoProvider": null,
       "ssoSub": null,
@@ -389,6 +389,17 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "al_1789021451332_wj6s",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "LOGIN",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "10.200.58.59",
+      "details": "User logged in successfully (Salt Hashing verified)",
+      "timestamp": "2026-09-10T06:24:11.332Z"
+    },
     {
       "id": "al_1789021225478_468r",
       "userId": "u_admin",

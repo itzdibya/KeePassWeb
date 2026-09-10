@@ -10,7 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { encrypt, hashPassword, generateMFASecret, generateRecoveryCodes } = require('./crypto-utils');
+const { encrypt, hashPassword, generateMFASecret, generateRecoveryCodes, hashRecoveryCode } = require('./crypto-utils');
 
 const DB_FILE = path.join(__dirname, 'data', 'vault-storage.json');
 
@@ -33,7 +33,7 @@ function getDefaultData() {
             avatar: '🛡️',
             mfaSecret: 'JBSWY3DPEHPK3PXP',
             mfaEnabled: false,
-            recoveryCodes: generateRecoveryCodes(4),
+            recoveryCodes: generateRecoveryCodes(4).map(c => hashRecoveryCode(c, adminPass.salt)),
             ssoProvider: null,
             ssoSub: null,
             createdAt: '2026-01-01T00:00:00.000Z',
@@ -50,7 +50,7 @@ function getDefaultData() {
             avatar: '👩‍💻',
             mfaSecret: 'HXDMVJECJJWSRB3H',
             mfaEnabled: true,
-            recoveryCodes: generateRecoveryCodes(4),
+            recoveryCodes: generateRecoveryCodes(4).map(c => hashRecoveryCode(c, alicePass.salt)),
             ssoProvider: null,
             ssoSub: null,
             createdAt: '2026-01-05T00:00:00.000Z',
@@ -67,7 +67,7 @@ function getDefaultData() {
             avatar: '👨‍🎨',
             mfaSecret: 'GEZDGNBVGY3TQOJQ',
             mfaEnabled: false,
-            recoveryCodes: generateRecoveryCodes(4),
+            recoveryCodes: generateRecoveryCodes(4).map(c => hashRecoveryCode(c, bobPass.salt)),
             ssoProvider: null,
             ssoSub: null,
             createdAt: '2026-01-10T00:00:00.000Z',
@@ -84,7 +84,7 @@ function getDefaultData() {
             avatar: '🕵️',
             mfaSecret: 'MZXW6YTBOI======',
             mfaEnabled: false,
-            recoveryCodes: generateRecoveryCodes(4),
+            recoveryCodes: generateRecoveryCodes(4).map(c => hashRecoveryCode(c, charliePass.salt)),
             ssoProvider: null,
             ssoSub: null,
             createdAt: '2026-01-15T00:00:00.000Z',
@@ -343,7 +343,7 @@ class Database {
             try {
                 const raw = fs.readFileSync(DB_FILE, 'utf8');
                 this.data = JSON.parse(raw);
-                // Schema migration check for salts & MFA
+                // Schema migration check for salts, MFA, and recovery code hashing
                 let modified = false;
                 this.data.users.forEach(u => {
                     if (!u.salt || u.salt.length < 32) {
@@ -355,7 +355,21 @@ class Database {
                     if (u.mfaEnabled === undefined) {
                         u.mfaEnabled = false;
                         u.mfaSecret = generateMFASecret();
-                        u.recoveryCodes = generateRecoveryCodes(4);
+                        u.recoveryCodes = generateRecoveryCodes(4).map(c => hashRecoveryCode(c, u.salt));
+                        modified = true;
+                    }
+                    // Migration: securely hash any legacy plaintext recovery codes at rest
+                    if (u.recoveryCodes && Array.isArray(u.recoveryCodes)) {
+                        const hasPlain = u.recoveryCodes.some(c => typeof c === 'string' && !c.startsWith('rc_sha256:'));
+                        if (hasPlain) {
+                            u.recoveryCodes = u.recoveryCodes.map(c => {
+                                if (typeof c === 'string' && c.startsWith('rc_sha256:')) return c;
+                                return hashRecoveryCode(c, u.salt);
+                            });
+                            modified = true;
+                        }
+                    } else {
+                        u.recoveryCodes = [];
                         modified = true;
                     }
                 });
@@ -411,18 +425,25 @@ class Database {
     }
 
     createUser(userData) {
+        const salt = userData.salt || require('crypto').randomBytes(32).toString('hex');
+        let recoveryCodes = userData.recoveryCodes;
+        if (!recoveryCodes || !recoveryCodes.length) {
+            recoveryCodes = generateRecoveryCodes(4).map(c => hashRecoveryCode(c, salt));
+        } else {
+            recoveryCodes = recoveryCodes.map(c => typeof c === 'string' && c.startsWith('rc_sha256:') ? c : hashRecoveryCode(c, salt));
+        }
         const user = {
             id: `u_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
             username: userData.username,
             displayName: userData.displayName || userData.username,
             email: userData.email,
             passwordHash: userData.passwordHash,
-            salt: userData.salt,
+            salt: salt,
             role: userData.role || 'member',
             avatar: userData.avatar || '👤',
             mfaSecret: userData.mfaSecret || generateMFASecret(),
             mfaEnabled: Boolean(userData.mfaEnabled),
-            recoveryCodes: userData.recoveryCodes || generateRecoveryCodes(4),
+            recoveryCodes: recoveryCodes,
             ssoProvider: userData.ssoProvider || null,
             ssoSub: userData.ssoSub || null,
             createdAt: new Date().toISOString(),
