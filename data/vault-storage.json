@@ -390,6 +390,17 @@
   ],
   "auditLogs": [
     {
+      "id": "al_1789022699081_xlkk",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "LOGIN",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "127.0.0.1",
+      "details": "User logged in successfully (Salt Hashing verified)",
+      "timestamp": "2026-09-10T06:44:59.081Z"
+    },
+    {
       "id": "al_1789022114338_8dc8",
       "userId": "u_admin",
       "username": "admin",
