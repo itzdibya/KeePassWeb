@@ -551,6 +551,8 @@ module.exports = {
     evaluatePasswordStrength,
     generateMFASecret,
     generateRecoveryCodes,
+    hashRecoveryCode,
+    verifyRecoveryCode,
     generateMFA,
     verifyMFACode,
     base32Decode,
