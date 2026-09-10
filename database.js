@@ -721,11 +721,20 @@ class Database {
         }
 
         if (['owner', 'admin', 'co_owner'].includes(permission)) {
-            if (updates.sharingMode !== undefined) {
-                current.sharingMode = updates.sharingMode;
-            }
-            if (updates.shares !== undefined && Array.isArray(updates.shares)) {
-                this.updateEntryShares(id, updates.shares, userId);
+            const targetFolderId = updates.folderId !== undefined ? updates.folderId : current.folderId;
+            const targetFolder = this.findFolderById(targetFolderId);
+            const isTargetPrivateFolder = targetFolder ? targetFolder.isShared === false : false;
+
+            if (isTargetPrivateFolder) {
+                current.sharingMode = 'private';
+                this.updateEntryShares(id, [], userId);
+            } else {
+                if (updates.sharingMode !== undefined) {
+                    current.sharingMode = updates.sharingMode;
+                }
+                if (updates.shares !== undefined && Array.isArray(updates.shares)) {
+                    this.updateEntryShares(id, updates.shares, userId);
+                }
             }
         }
 
