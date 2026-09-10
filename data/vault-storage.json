@@ -390,6 +390,50 @@
   ],
   "auditLogs": [
     {
+      "id": "al_1789024522612_fjhj",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "MFA_UPDATED",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "10.200.58.59",
+      "details": "Enabled MFA Authenticator",
+      "timestamp": "2026-09-10T07:15:22.612Z"
+    },
+    {
+      "id": "al_1789024122811_7xv3",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1788427407515_x8y6n",
+      "entryTitle": "Test AWS",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"Test AWS\"",
+      "timestamp": "2026-09-10T07:08:42.811Z"
+    },
+    {
+      "id": "al_1789024121289_7lgh",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1788427407515_x8y6n",
+      "entryTitle": "Test AWS",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"Test AWS\"",
+      "timestamp": "2026-09-10T07:08:41.289Z"
+    },
+    {
+      "id": "al_1789023566592_kerb",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "LOGIN",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "10.200.58.59",
+      "details": "User logged in successfully (Salt Hashing verified)",
+      "timestamp": "2026-09-10T06:59:26.592Z"
+    },
+    {
       "id": "al_1789022699081_xlkk",
       "userId": "u_admin",
       "username": "admin",
