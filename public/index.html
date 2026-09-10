@@ -833,9 +833,12 @@
                         <span class="form-hint">Or manually enter the secret key above into your authenticator app.</span>
 
                         <div class="recovery-codes-section" style="margin-top:16px;">
-                            <h5>Emergency Backup Recovery Codes:</h5>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <h5 style="margin:0;">Emergency Backup Recovery Codes:</h5>
+                                <button type="button" class="btn btn-sm btn-secondary" id="regenerateRecoveryBtn" onclick="app.regenerateRecoveryCodes()" style="font-size:11px; padding:3px 8px;">🔄 Regenerate Codes</button>
+                            </div>
                             <div class="recovery-codes-grid" id="recoveryCodesGrid"></div>
-                            <span class="form-hint">Save these codes in a secure place. Each code can be used once if you lose your authenticator.</span>
+                            <div id="recoveryNoticeBox" style="margin-top:8px;"></div>
                         </div>
                     </div>
                 </div>
