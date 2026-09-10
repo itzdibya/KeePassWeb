@@ -23,6 +23,9 @@ const {
     generatePassword,
     evaluatePasswordStrength,
     generateMFASecret,
+    generateRecoveryCodes,
+    hashRecoveryCode,
+    verifyRecoveryCode,
     generateMFA,
     verifyMFACode,
     generateWebAuthnChallenge,
@@ -234,7 +237,13 @@ const server = http.createServer(async (req, res) => {
                 if (!user) return sendJSON(res, 404, { error: 'User not found' });
 
                 const isMfaValid = verifyMFACode(code, user.mfaSecret);
-                const isRecoveryValid = user.recoveryCodes && user.recoveryCodes.includes(code.trim().toUpperCase());
+                let matchedRecoveryIndex = -1;
+                if (user.recoveryCodes && Array.isArray(user.recoveryCodes)) {
+                    matchedRecoveryIndex = user.recoveryCodes.findIndex(storedCode => {
+                        return verifyRecoveryCode(code, storedCode, user.salt);
+                    });
+                }
+                const isRecoveryValid = matchedRecoveryIndex !== -1;
 
                 if (!isMfaValid && !isRecoveryValid) {
                     db.logAudit({
@@ -248,7 +257,7 @@ const server = http.createServer(async (req, res) => {
                 }
 
                 if (isRecoveryValid) {
-                    user.recoveryCodes = user.recoveryCodes.filter(c => c !== code.trim().toUpperCase());
+                    user.recoveryCodes.splice(matchedRecoveryIndex, 1);
                     db.save();
                 }
 
@@ -366,7 +375,7 @@ const server = http.createServer(async (req, res) => {
                         avatar: currentUser.avatar,
                         mfaEnabled: Boolean(currentUser.mfaEnabled),
                         mfaSecret: currentUser.mfaSecret,
-                        recoveryCodes: currentUser.recoveryCodes || []
+                        recoveryCodesRemaining: (currentUser.recoveryCodes || []).length
                     }
                 });
             }
@@ -374,8 +383,15 @@ const server = http.createServer(async (req, res) => {
             if (pathname === '/api/auth/mfa-toggle' && req.method === 'POST') {
                 const body = await parseBody(req);
                 currentUser.mfaEnabled = Boolean(body.enabled);
-                if (body.enabled && !currentUser.mfaSecret) {
-                    currentUser.mfaSecret = generateMFASecret();
+                let newPlainCodes = null;
+                if (body.enabled) {
+                    if (!currentUser.mfaSecret) {
+                        currentUser.mfaSecret = generateMFASecret();
+                    }
+                    if (!currentUser.recoveryCodes || !currentUser.recoveryCodes.length) {
+                        newPlainCodes = generateRecoveryCodes(4);
+                        currentUser.recoveryCodes = newPlainCodes.map(c => hashRecoveryCode(c, currentUser.salt));
+                    }
                 }
                 db.save();
                 db.logAudit({
@@ -389,7 +405,29 @@ const server = http.createServer(async (req, res) => {
                     success: true,
                     mfaEnabled: currentUser.mfaEnabled,
                     mfaSecret: currentUser.mfaSecret,
-                    recoveryCodes: currentUser.recoveryCodes
+                    newRecoveryCodes: newPlainCodes, // Only delivered once at generation time
+                    recoveryCodesRemaining: (currentUser.recoveryCodes || []).length
+                });
+            }
+
+            if (pathname === '/api/auth/mfa-regenerate-recovery' && req.method === 'POST') {
+                if (!currentUser.mfaEnabled) {
+                    return sendJSON(res, 400, { error: 'MFA is not enabled for this account' });
+                }
+                const newPlainCodes = generateRecoveryCodes(4);
+                currentUser.recoveryCodes = newPlainCodes.map(c => hashRecoveryCode(c, currentUser.salt));
+                db.save();
+                db.logAudit({
+                    userId: currentUser.id,
+                    username: currentUser.username,
+                    action: 'MFA_RECOVERY_REGENERATED',
+                    ip: clientIp,
+                    details: 'Regenerated emergency backup recovery codes (Hashed at rest)'
+                });
+                return sendJSON(res, 200, {
+                    success: true,
+                    newRecoveryCodes: newPlainCodes,
+                    recoveryCodesRemaining: currentUser.recoveryCodes.length
                 });
             }
 
