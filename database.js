@@ -470,6 +470,11 @@ class Database {
         return true;
     }
 
+    findFolderById(id) {
+        if (!id) return null;
+        return this.data.folders.find(f => f.id === id) || null;
+    }
+
     // --- Folders API ---
     getFolders(userId) {
         const user = this.findUserById(userId);

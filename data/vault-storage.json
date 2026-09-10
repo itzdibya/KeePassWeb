@@ -351,6 +351,27 @@
       "sharingMode": "selected",
       "createdAt": "2026-09-03T09:23:27.695Z",
       "updatedAt": "2026-09-03T09:23:27.695Z"
+    },
+    {
+      "id": "e_1789043735073_n3zll",
+      "folderId": "f_root",
+      "ownerId": "u_admin",
+      "title": "sfgdf",
+      "username": "fghfg@ffff.co",
+      "encryptedPassword": "aecd4c56f4c115c62eba92f3:d8d7f6090dc75b383059d8fb09952adf:8e892cab0260fb70aee14fad40da8c20",
+      "url": "spp.text.com",
+      "notesEncrypted": "",
+      "customFieldsEncrypted": "e8d829a5482002b8f16ff482:33a813b19b7258bc83e9e546d2dca66b:60ba",
+      "totpSecretEncrypted": "",
+      "tags": [],
+      "icon": "🔒",
+      "color": "#3b82f6",
+      "expiresAt": null,
+      "isFavorite": false,
+      "inRecycleBin": false,
+      "sharingMode": "private",
+      "createdAt": "2026-09-10T12:35:35.250Z",
+      "updatedAt": "2026-09-10T12:35:35.250Z"
     }
   ],
   "entryShares": [
@@ -389,6 +410,94 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "al_1789043822164_lb5h",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sfgdf\"",
+      "timestamp": "2026-09-10T12:37:02.164Z"
+    },
+    {
+      "id": "al_1789043819683_3tkw",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_COPIED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Copied password to clipboard",
+      "timestamp": "2026-09-10T12:36:59.683Z"
+    },
+    {
+      "id": "al_1789043819667_bw2i",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sfgdf\"",
+      "timestamp": "2026-09-10T12:36:59.667Z"
+    },
+    {
+      "id": "al_1789043735490_1qsc",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sfgdf\"",
+      "timestamp": "2026-09-10T12:35:35.490Z"
+    },
+    {
+      "id": "al_1789043735250_7799",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "ENTRY_CREATED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Created entry \"sfgdf\" (Sharing: private)",
+      "timestamp": "2026-09-10T12:35:35.250Z"
+    },
+    {
+      "id": "al_1789042999409_5jf3",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_2",
+      "entryTitle": "AWS Production Master Account",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"AWS Production Master Account\"",
+      "timestamp": "2026-09-10T12:23:19.409Z"
+    },
+    {
+      "id": "al_1789041332016_hq96",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "LOGIN",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "10.200.58.59",
+      "details": "User logged in successfully (Salt Hashing verified)",
+      "timestamp": "2026-09-10T11:55:32.016Z"
+    },
+    {
+      "id": "al_1789041325667_mn3a",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "LOGIN",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "10.200.58.59",
+      "details": "User logged in successfully (Salt Hashing verified)",
+      "timestamp": "2026-09-10T11:55:25.667Z"
+    },
     {
       "id": "al_1789024522612_fjhj",
       "userId": "u_admin",
