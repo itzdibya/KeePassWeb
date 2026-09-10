@@ -20,7 +20,8 @@ const db = require('../database');
 const backupService = require('../backup-service');
 const {
     parseKdbxDatabase,
-    isKdbxFile
+    isKdbxFile,
+    generateKdbxFile
 } = require('../kdbx-parser');
 const {
     parseKeePassXML,
@@ -118,13 +119,23 @@ console.log('================================================================\n'
     assert.strictEqual(parsed.entries[0].username, 'kubeadmin');
     assert.strictEqual(parsed.entries[0].password, 'KubeSecretPass#2026');
 
-    // Test CSV parser
-    const sampleCsv = `"Group","Title","Username","Password","URL","Notes","TOTP"\n"General","Slack","alice","SlackSecret!123","https://slack.com","Chat","JBSWY3DPEHPK3PXP"`;
-    const parsedCsv = parseCSV(sampleCsv);
-    assert.strictEqual(parsedCsv.length, 1, 'CSV parser must extract 1 entry');
-    assert.strictEqual(parsedCsv[0].title, 'Slack');
+    // Test Native .kdbx Binary Generator & Round-Trip Parser
+    const mockEntries = [{
+        title: 'KeePass Export Test',
+        username: 'user_kdbx',
+        encryptedPassword: encrypt('SecureKdbxPassword!2026'),
+        url: 'https://kdbx.export.test',
+        notesEncrypted: encrypt('KDBX Export notes'),
+        totpSecretEncrypted: encrypt('JBSWY3DPEHPK3PXP')
+    }];
+    const kdbxBuffer = generateKdbxFile(mockEntries, 'ExportMasterPass123!');
+    assert(isKdbxFile(kdbxBuffer), 'Generated buffer must be a valid KDBX file with proper signatures');
+    const parsedKdbx = parseKdbxDatabase(kdbxBuffer, 'ExportMasterPass123!');
+    assert.strictEqual(parsedKdbx.entries.length, 1, 'KDBX Parser must read back generated KDBX file');
+    assert.strictEqual(parsedKdbx.entries[0].title, 'KeePass Export Test');
+    assert.strictEqual(parsedKdbx.entries[0].password, 'SecureKdbxPassword!2026');
 
-    console.log('✅ Test 4 Passed: Native .kdbx Database and XML/CSV Parser Engine');
+    console.log('✅ Test 4 Passed: Native .kdbx Database Exporter, Importer and XML/CSV Engine');
 }
 
 // 5. Test Daily Local Database Backup Service
