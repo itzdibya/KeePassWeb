@@ -566,6 +566,15 @@ const server = http.createServer(async (req, res) => {
                     return sendJSON(res, 400, { error: 'Title is required' });
                 }
 
+                if (body.folderId) {
+                    const targetFolder = db.findFolderById(body.folderId);
+                    if (targetFolder && targetFolder.isShared === false) {
+                        if ((body.sharingMode && body.sharingMode !== 'private') || (body.shares && Array.isArray(body.shares) && body.shares.length > 0)) {
+                            return sendJSON(res, 400, { error: 'Private vault entries cannot be shared with co-members. Move or save this entry to a shared team folder to enable sharing.' });
+                        }
+                    }
+                }
+
                 const newEntry = db.createEntry(body, currentUser.id);
 
                 db.logAudit({
