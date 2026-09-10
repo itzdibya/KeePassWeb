@@ -729,6 +729,7 @@ class KeePassWebApp {
             pane.classList.toggle('active', pane.id === 'tab-general');
         });
 
+        this.onEntryFolderChange();
         this.openModal('entryModal');
     }
 
@@ -789,7 +790,38 @@ class KeePassWebApp {
             pane.classList.toggle('active', pane.id === 'tab-general');
         });
 
+        this.onEntryFolderChange();
         this.openModal('entryModal');
+    }
+
+    onEntryFolderChange() {
+        const folderSelect = document.getElementById('entryInputFolder');
+        const folderId = folderSelect ? folderSelect.value : null;
+        const folder = this.folders.find(f => f.id === folderId);
+        const isPrivateVault = folder ? folder.isShared === false : false;
+
+        const noticeEl = document.getElementById('privateVaultSharingNotice');
+        if (noticeEl) {
+            noticeEl.style.display = isPrivateVault ? 'block' : 'none';
+        }
+
+        document.querySelectorAll('input[name="sharingScope"]').forEach(r => {
+            if (isPrivateVault) {
+                if (r.value === 'private') {
+                    r.checked = true;
+                    r.disabled = false;
+                } else {
+                    r.disabled = true;
+                }
+            } else {
+                r.disabled = false;
+            }
+        });
+
+        const specificBox = document.getElementById('specificMembersBox');
+        if (specificBox && isPrivateVault) {
+            specificBox.style.display = 'none';
+        }
     }
 
     renderTeamSharingList(containerId, existingShares = []) {
