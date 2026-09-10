@@ -627,6 +627,10 @@ class Database {
 
     createEntry(entryData, userId) {
         const id = `e_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const folder = this.findFolderById(entryData.folderId);
+        const isPrivateFolder = folder ? folder.isShared === false : false;
+        const resolvedSharingMode = isPrivateFolder ? 'private' : (entryData.sharingMode || 'private');
+
         const newEntry = {
             id,
             folderId: entryData.folderId || 'f_root',
@@ -644,14 +648,14 @@ class Database {
             expiresAt: entryData.expiresAt || null,
             isFavorite: Boolean(entryData.isFavorite),
             inRecycleBin: false,
-            sharingMode: entryData.sharingMode || 'private',
+            sharingMode: resolvedSharingMode,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
 
         this.data.entries.push(newEntry);
 
-        if (entryData.shares && Array.isArray(entryData.shares) && entryData.sharingMode === 'selected') {
+        if (!isPrivateFolder && entryData.shares && Array.isArray(entryData.shares) && resolvedSharingMode === 'selected') {
             entryData.shares.forEach(share => {
                 if (share.userId && share.userId !== userId) {
                     this.data.entryShares.push({
