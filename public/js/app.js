@@ -996,25 +996,42 @@ class KeePassWebApp {
         const entry = this.entries.find(e => e.id === entryId);
         if (!entry) return;
 
+        const folder = this.folders.find(f => f.id === entry.folderId);
+        const isPrivateVault = folder ? folder.isShared === false : false;
+
         const titleEl = document.getElementById('sharingTargetTitle');
         if (titleEl) {
             titleEl.innerHTML = `Editing co-access for: <strong>${this.escapeHtml(entry.title)}</strong>`;
         }
 
-        const mode = entry.sharingMode || 'private';
+        const noticeEl = document.getElementById('quickSharePrivateNotice');
+        if (noticeEl) {
+            noticeEl.style.display = isPrivateVault ? 'block' : 'none';
+        }
+
+        const mode = isPrivateVault ? 'private' : (entry.sharingMode || 'private');
         const radio = document.querySelector(`input[name="modalShareScope"][value="${mode}"]`);
         if (radio) radio.checked = true;
 
+        document.querySelectorAll('input[name="modalShareScope"]').forEach(r => {
+            if (isPrivateVault) {
+                r.disabled = r.value !== 'private';
+            } else {
+                r.disabled = false;
+            }
+        });
+
         const specificBox = document.getElementById('quickShareMembersBox');
         if (specificBox) {
-            specificBox.style.display = mode === 'selected' ? 'block' : 'none';
+            specificBox.style.display = (!isPrivateVault && mode === 'selected') ? 'block' : 'none';
         }
 
-        const existingShares = entry.sharedUsers || entry.shares || [];
+        const existingShares = isPrivateVault ? [] : (entry.sharedUsers || entry.shares || []);
         this.renderTeamSharingList('quickShareTeamList', existingShares);
 
         const saveBtn = document.getElementById('saveQuickShareBtn');
         if (saveBtn) {
+            saveBtn.disabled = isPrivateVault;
             saveBtn.onclick = () => this.saveQuickShare(entryId);
         }
 
@@ -1022,6 +1039,13 @@ class KeePassWebApp {
     }
 
     async saveQuickShare(entryId) {
+        const entry = this.entries.find(e => e.id === entryId);
+        const folder = entry ? this.folders.find(f => f.id === entry.folderId) : null;
+        if (folder && folder.isShared === false) {
+            this.showToast('Private vault entries cannot be shared with co-members', 'danger');
+            return;
+        }
+
         const sharingMode = document.querySelector('input[name="modalShareScope"]:checked')?.value || 'private';
         const shares = [];
 
