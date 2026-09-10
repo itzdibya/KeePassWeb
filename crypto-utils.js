@@ -120,6 +120,38 @@ function generateRecoveryCodes(count = 8) {
 }
 
 /**
+ * Hash a single-use backup recovery code using HMAC-SHA256 with user salt
+ */
+function hashRecoveryCode(code, salt = '') {
+    if (!code) return '';
+    const clean = String(code).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const hmac = crypto.createHmac('sha256', salt || 'keepass-recovery-salt-2026');
+    hmac.update(clean);
+    return `rc_sha256:${hmac.digest('hex')}`;
+}
+
+/**
+ * Verify an entered recovery code against a stored hash (or legacy plaintext)
+ */
+function verifyRecoveryCode(enteredCode, storedCode, salt = '') {
+    if (!enteredCode || !storedCode) return false;
+    const cleanEntered = String(enteredCode).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+    if (typeof storedCode === 'string' && storedCode.startsWith('rc_sha256:')) {
+        const expectedHash = hashRecoveryCode(cleanEntered, salt);
+        try {
+            return crypto.timingSafeEqual(Buffer.from(expectedHash, 'utf8'), Buffer.from(storedCode, 'utf8'));
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // Backward compatibility for legacy plaintext codes before migration:
+    const cleanStored = String(storedCode).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    return cleanEntered === cleanStored;
+}
+
+/**
  * Base32 Decode (RFC 4648)
  */
 function base32Decode(base32Str) {
