@@ -498,7 +498,14 @@ class KeePassWebApp {
         const sharingSummary = document.getElementById('detailSharingSummary');
         const shareBtn = document.getElementById('shareDetailBtn');
 
-        if (entry.sharingMode === 'private') {
+        const folder = this.folders.find(f => f.id === entry.folderId);
+        const isPrivateVault = folder ? folder.isShared === false : false;
+
+        if (isPrivateVault) {
+            accessBadge.className = 'detail-access-badge access-private';
+            accessBadge.textContent = '🔒 Private Vault';
+            sharingSummary.innerHTML = `<div>Stored in personal <strong>Private Vault</strong>. Strictly restricted to you (<strong>${entry.ownerName}</strong>) and cannot be shared with co-members.</div>`;
+        } else if (entry.sharingMode === 'private') {
             accessBadge.className = 'detail-access-badge access-private';
             accessBadge.textContent = '🔒 Private (Only You)';
             sharingSummary.innerHTML = `<div>Only you (<strong>${entry.ownerName}</strong>) have access to this credential.</div>`;
@@ -523,7 +530,7 @@ class KeePassWebApp {
         }
 
         // Enable / disable delete & share buttons based on permission
-        const canManage = ['owner', 'admin', 'co_owner'].includes(entry.userPermission);
+        const canManage = ['owner', 'admin', 'co_owner'].includes(entry.userPermission) && !isPrivateVault;
         if (shareBtn) shareBtn.style.display = canManage ? 'inline-flex' : 'none';
 
         // Custom Fields
