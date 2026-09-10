@@ -928,6 +928,17 @@ class KeePassWebApp {
                 });
             }
 
+            const folder = this.folders.find(f => f.id === folderId);
+            const isPrivateVault = folder ? folder.isShared === false : false;
+            if (isPrivateVault && (sharingMode !== 'private' || shares.length > 0)) {
+                this.showToast('Private vault entries cannot be shared with co-members. Select a shared group first.', 'danger');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalBtnText;
+                }
+                return;
+            }
+
             const customFields = [];
             document.querySelectorAll('#customFieldsEditorList .custom-field-row').forEach(row => {
                 const name = row.querySelector('.custom-field-name')?.value.trim();
