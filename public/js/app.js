@@ -1075,10 +1075,32 @@ class KeePassWebApp {
             secretDisplay.textContent = user.mfaSecret;
         }
 
-        if (recoveryGrid && user.recoveryCodes) {
-            recoveryGrid.innerHTML = user.recoveryCodes.map(c => `
-                <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; font-size: 13px; font-weight: 600; text-align: center; color: #38bdf8;" class="monospace">${c}</div>
-            `).join('');
+        if (recoveryGrid) {
+            const noticeBox = document.getElementById('recoveryNoticeBox');
+            if (this.freshRecoveryCodes && this.freshRecoveryCodes.length) {
+                recoveryGrid.innerHTML = this.freshRecoveryCodes.map(c => `
+                    <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 4px; padding: 6px 10px; font-size: 13px; font-weight: 700; text-align: center; color: #38bdf8; letter-spacing: 1px;" class="monospace">${c}</div>
+                `).join('');
+                if (noticeBox) {
+                    noticeBox.innerHTML = `
+                        <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #fbbf24; margin-bottom: 8px;">
+                            ⚠️ <strong>Action Required:</strong> Save these backup codes now. For security, recovery codes are hashed at rest with HMAC-SHA256 and will not be displayed again.
+                        </div>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="app.copyAllRecoveryCodes()" style="width:100%; font-size:12px;">📋 Copy All Recovery Codes</button>
+                    `;
+                }
+            } else {
+                const remaining = user.recoveryCodesRemaining ?? 0;
+                recoveryGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; padding: 10px 14px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; font-size: 13px; color: #10b981; display: flex; align-items: center; gap: 8px;">
+                        <span>🔒</span>
+                        <span><strong>${remaining} Recovery Code(s) Active</strong> — Protected with cryptographic SHA-256 HMAC at rest.</span>
+                    </div>
+                `;
+                if (noticeBox) {
+                    noticeBox.innerHTML = `<span class="form-hint">Codes are securely hashed at rest and cannot be viewed in plaintext. Click "Regenerate Codes" above to issue a new batch.</span>`;
+                }
+            }
         }
 
         this.openModal('mfaModal');
@@ -1090,12 +1112,35 @@ class KeePassWebApp {
             if (this.currentUser) {
                 this.currentUser.mfaEnabled = enable;
             }
+            if (res.newRecoveryCodes) {
+                this.freshRecoveryCodes = res.newRecoveryCodes;
+            } else {
+                this.freshRecoveryCodes = null;
+            }
             this.showToast(`Two-Factor Authentication ${enable ? 'enabled' : 'disabled'} successfully!`, 'success');
             await this.openMfaSettingsModal();
             await this.loadUsers();
         } else {
             this.showToast(res?.error || 'Failed to update 2FA setting', 'danger');
         }
+    }
+
+    async regenerateRecoveryCodes() {
+        if (!confirm('Are you sure you want to regenerate recovery codes? Any previous unused recovery codes will be invalidated.')) return;
+        const res = await this.apiPost('/api/auth/mfa-regenerate-recovery', {});
+        if (res && res.success && res.newRecoveryCodes) {
+            this.freshRecoveryCodes = res.newRecoveryCodes;
+            this.showToast('Regenerated backup recovery codes! Please save them.', 'success');
+            await this.openMfaSettingsModal();
+        } else {
+            this.showToast(res?.error || 'Failed to regenerate recovery codes', 'danger');
+        }
+    }
+
+    copyAllRecoveryCodes() {
+        if (!this.freshRecoveryCodes || !this.freshRecoveryCodes.length) return;
+        const text = this.freshRecoveryCodes.join('\n');
+        this.copyToClipboard(text, 'recovery codes');
     }
 
     // Team Members & Roles Modal
