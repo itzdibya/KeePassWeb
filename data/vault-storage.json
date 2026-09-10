@@ -390,6 +390,72 @@
   ],
   "auditLogs": [
     {
+      "id": "al_1789022114338_8dc8",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "LOGIN",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "10.200.58.59",
+      "details": "User logged in successfully (Salt Hashing verified)",
+      "timestamp": "2026-09-10T06:35:14.338Z"
+    },
+    {
+      "id": "al_1789021746986_3fxu",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_6",
+      "entryTitle": "Bob Personal Google Account",
+      "ip": "127.0.0.1",
+      "details": "Decrypted and viewed credentials for \"Bob Personal Google Account\"",
+      "timestamp": "2026-09-10T06:29:06.986Z"
+    },
+    {
+      "id": "al_1789021740256_ie6f",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_2",
+      "entryTitle": "AWS Production Master Account",
+      "ip": "127.0.0.1",
+      "details": "Decrypted and viewed credentials for \"AWS Production Master Account\"",
+      "timestamp": "2026-09-10T06:29:00.256Z"
+    },
+    {
+      "id": "al_1789021726907_q58w",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1788427407515_x8y6n",
+      "entryTitle": "Test AWS",
+      "ip": "127.0.0.1",
+      "details": "Decrypted and viewed credentials for \"Test AWS\"",
+      "timestamp": "2026-09-10T06:28:46.907Z"
+    },
+    {
+      "id": "al_1789021636360_j82e",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "LOGIN",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "127.0.0.1",
+      "details": "User logged in successfully (Salt Hashing verified)",
+      "timestamp": "2026-09-10T06:27:16.360Z"
+    },
+    {
+      "id": "al_1789021610924_ab8i",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "LOGIN",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "127.0.0.1",
+      "details": "User logged in successfully (Salt Hashing verified)",
+      "timestamp": "2026-09-10T06:26:50.924Z"
+    },
+    {
       "id": "al_1789021451332_wj6s",
       "userId": "u_admin",
       "username": "admin",
