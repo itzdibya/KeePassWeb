@@ -1547,11 +1547,32 @@ class KeePassWebApp {
 
     // Vault Export Downloader
     async downloadExport(format) {
-        const url = format === 'xml' ? '/api/export/keepass-xml' : '/api/export/csv';
+        let url = '';
+        let filename = '';
+        let method = 'GET';
+        let body = null;
+
+        if (format === 'kdbx') {
+            url = '/api/export/kdbx';
+            filename = 'keepass-vault-export.kdbx';
+            const kdbxPass = document.getElementById('exportKdbxPasswordInput')?.value;
+            if (kdbxPass) {
+                method = 'POST';
+                body = JSON.stringify({ password: kdbxPass });
+            }
+        } else if (format === 'xml') {
+            url = '/api/export/keepass-xml';
+            filename = 'keepass-web-export.xml';
+        } else {
+            url = '/api/export/csv';
+            filename = 'keepass-web-export.csv';
+        }
+
         try {
-            const res = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${this.token}` }
-            });
+            const headers = { 'Authorization': `Bearer ${this.token}` };
+            if (body) headers['Content-Type'] = 'application/json';
+
+            const res = await fetch(url, { method, headers, body });
             if (!res.ok) {
                 this.showToast('Export failed', 'danger');
                 return;
@@ -1559,7 +1580,7 @@ class KeePassWebApp {
             const blob = await res.blob();
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = format === 'xml' ? 'keepass-web-export.xml' : 'keepass-web-export.csv';
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1966,6 +1987,7 @@ class KeePassWebApp {
             if (pasteGroup) pasteGroup.style.display = fmt !== 'kdbx' ? 'block' : 'none';
         });
 
+        document.getElementById('exportKdbxBtn')?.addEventListener('click', () => this.downloadExport('kdbx'));
         document.getElementById('exportXmlBtn')?.addEventListener('click', () => this.downloadExport('xml'));
         document.getElementById('exportCsvBtn')?.addEventListener('click', () => this.downloadExport('csv'));
 
