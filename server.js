@@ -32,7 +32,8 @@ const {
     analyzeVaultHealth
 } = require('./crypto-utils');
 const {
-    parseKdbxDatabase
+    parseKdbxDatabase,
+    generateKdbxFile
 } = require('./kdbx-parser');
 const {
     parseKeePassXML,
@@ -1086,6 +1087,22 @@ const server = http.createServer(async (req, res) => {
             }
 
             // 21. Export Routes
+            if (pathname === '/api/export/kdbx' && (req.method === 'GET' || req.method === 'POST')) {
+                let masterPassword = query.password || '';
+                if (req.method === 'POST') {
+                    const body = await parseBody(req);
+                    if (body && body.password) masterPassword = body.password;
+                }
+                const entries = db.getAccessibleEntries(currentUser.id);
+                const kdbxBuffer = generateKdbxFile(entries, masterPassword);
+                res.writeHead(200, {
+                    'Content-Type': 'application/octet-stream',
+                    'Content-Disposition': 'attachment; filename="keepass-vault-export.kdbx"',
+                    'Content-Length': kdbxBuffer.length
+                });
+                return res.end(kdbxBuffer);
+            }
+
             if (pathname === '/api/export/keepass-xml' && req.method === 'GET') {
                 const entries = db.getAccessibleEntries(currentUser.id);
                 const xml = generateKeePassXML(entries);
