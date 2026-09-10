@@ -32,6 +32,7 @@ const IGNORED_PATHS = [
     '.git',
     'node_modules',
     'backups',
+    'data',
     '.DS_Store',
     'npm-debug.log',
     'auto-sync.log',
