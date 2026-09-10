@@ -787,23 +787,53 @@
 
                     <!-- EXPORT TAB -->
                     <div class="io-tab-pane" id="tab-export" style="display:none;">
-                        <p class="io-description">
+                        <p class="io-description" style="margin-bottom:12px;">
                             Download backup of all accessible entries in standard formats:
                         </p>
+
+                        <!-- KDBX Master Password (optional) -->
+                        <div class="form-group" style="margin-bottom:12px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:6px; padding:10px;">
+                            <label class="form-label" style="font-size:12px; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Master Password for .kdbx export (optional):</span>
+                                <span style="font-size:11px; color:var(--text-muted);">Used to unlock in KeePass / KeePassXC</span>
+                            </label>
+                            <input type="password" id="exportKdbxPasswordInput" class="form-input" placeholder="Set a master password or leave blank" style="font-size:13px; height:36px;">
+                        </div>
+
                         <div class="export-options-list">
-                            <button type="button" id="exportXmlBtn" class="export-btn-card" style="width:100%; text-align:left; background:none; border:1px solid var(--border); cursor:pointer;">
-                                <span class="card-icon">📁</span>
-                                <div>
-                                    <div class="card-title">KeePass 2.x XML (.xml)</div>
-                                    <div class="card-sub">Compatible with desktop KeePass2 & KeePassXC</div>
+                            <!-- 1. Native KeePass .kdbx Export -->
+                            <button type="button" id="exportKdbxBtn" class="export-btn-card export-kdbx-highlight" style="width:100%; text-align:left; background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.35); border-radius:8px; padding:12px; cursor:pointer; display:flex; align-items:center; gap:12px; margin-bottom:10px; transition:all 0.2s ease;">
+                                <span class="card-icon" style="font-size:26px;">🛡️</span>
+                                <div style="flex:1;">
+                                    <div class="card-title" style="font-weight:700; color:#38bdf8; font-size:14px; display:flex; align-items:center; gap:6px;">
+                                        KeePass 2.x Native Database (.kdbx)
+                                        <span style="background:#0284c7; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;">RECOMMENDED</span>
+                                    </div>
+                                    <div class="card-sub" style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+                                        Full encrypted binary database. Opens in KeePass 2, KeePassXC, mobile apps & web.
+                                    </div>
                                 </div>
+                                <span style="font-size:18px; color:#38bdf8;">📥</span>
                             </button>
-                            <button type="button" id="exportCsvBtn" class="export-btn-card" style="width:100%; text-align:left; background:none; border:1px solid var(--border); cursor:pointer; margin-top:8px;">
-                                <span class="card-icon">📊</span>
-                                <div>
-                                    <div class="card-title">Spreadsheet CSV (.csv)</div>
-                                    <div class="card-sub">Universal CSV table format</div>
+
+                            <!-- 2. KeePass XML Export -->
+                            <button type="button" id="exportXmlBtn" class="export-btn-card" style="width:100%; text-align:left; background:none; border:1px solid var(--border); border-radius:8px; padding:12px; cursor:pointer; display:flex; align-items:center; gap:12px; margin-bottom:10px; transition:all 0.2s ease;">
+                                <span class="card-icon" style="font-size:26px;">📁</span>
+                                <div style="flex:1;">
+                                    <div class="card-title" style="font-weight:600; color:var(--text-main); font-size:14px;">KeePass 2.x XML (.xml)</div>
+                                    <div class="card-sub" style="font-size:12px; color:var(--text-muted); margin-top:2px;">Compatible with desktop KeePass2 & KeePassXC</div>
                                 </div>
+                                <span style="font-size:18px; color:var(--text-muted);">📥</span>
+                            </button>
+
+                            <!-- 3. CSV Export -->
+                            <button type="button" id="exportCsvBtn" class="export-btn-card" style="width:100%; text-align:left; background:none; border:1px solid var(--border); border-radius:8px; padding:12px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:all 0.2s ease;">
+                                <span class="card-icon" style="font-size:26px;">📊</span>
+                                <div style="flex:1;">
+                                    <div class="card-title" style="font-weight:600; color:var(--text-main); font-size:14px;">Spreadsheet CSV (.csv)</div>
+                                    <div class="card-sub" style="font-size:12px; color:var(--text-muted); margin-top:2px;">Universal CSV table format for Excel & browsers</div>
+                                </div>
+                                <span style="font-size:18px; color:var(--text-muted);">📥</span>
                             </button>
                         </div>
                     </div>
