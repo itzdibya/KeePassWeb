@@ -595,6 +595,19 @@ const server = http.createServer(async (req, res) => {
                 const entryId = entryIdMatch[1];
                 const body = await parseBody(req);
 
+                const existingEntry = db.getEntryById(entryId, currentUser.id);
+                if (!existingEntry) {
+                    return sendJSON(res, 404, { error: 'Entry not found' });
+                }
+
+                const targetFolderId = body.folderId !== undefined ? body.folderId : existingEntry.folderId;
+                const targetFolder = db.findFolderById(targetFolderId);
+                if (targetFolder && targetFolder.isShared === false) {
+                    if ((body.sharingMode && body.sharingMode !== 'private') || (body.shares && Array.isArray(body.shares) && body.shares.length > 0)) {
+                        return sendJSON(res, 400, { error: 'Private vault entries cannot be shared with co-members. Move this entry to a shared team folder first.' });
+                    }
+                }
+
                 try {
                     const updated = db.updateEntry(entryId, body, currentUser.id);
                     if (!updated) {
