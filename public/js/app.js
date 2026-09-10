@@ -1914,6 +1914,9 @@ class KeePassWebApp {
         // Save Entry Submit
         document.getElementById('saveEntrySubmitBtn')?.addEventListener('click', () => this.saveEntry());
 
+        // Folder selection change in modal (updates private vault sharing availability)
+        document.getElementById('entryInputFolder')?.addEventListener('change', () => this.onEntryFolderChange());
+
         // Sharing Scope Radio changes in modal
         document.querySelectorAll('input[name="sharingScope"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
