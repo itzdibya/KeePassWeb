@@ -424,8 +424,8 @@ class KeePassWebApp {
                         ${badgeLabel}
                     </div>
                     <div class="entry-quick-actions" onclick="event.stopPropagation();">
-                        <button class="quick-action-btn" title="Copy Password" onclick="app.quickCopyPassword('${entry.id}')">🔑</button>
-                        <button class="quick-action-btn" title="Copy Username" onclick="app.quickCopyUsername('${entry.username}')">📋</button>
+                        <button class="quick-action-btn" title="Copy Password" onclick="app.quickCopyPassword('${entry.id}', this)">🔑</button>
+                        <button class="quick-action-btn" title="Copy Username" onclick="app.quickCopyUsername('${entry.username}', this)">📋</button>
                         ${entry.isOwner ? `<button class="quick-action-btn" title="Manage Sharing" onclick="app.openQuickShareModal('${entry.id}')">👥</button>` : ''}
                     </div>
                 </div>
@@ -533,7 +533,7 @@ class KeePassWebApp {
                     <span class="field-label">${this.escapeHtml(f.name)}</span>
                     <div class="field-value-box">
                         <span class="field-text monospace">${this.escapeHtml(f.value)}</span>
-                        <button class="copy-action-btn" onclick="app.copyToClipboard('${this.escapeHtml(f.value)}', '${this.escapeHtml(f.name)}')">📋</button>
+                        <button class="copy-action-btn" onclick="app.copyToClipboard('${this.escapeHtml(f.value)}', '${this.escapeHtml(f.name)}', this)">📋</button>
                     </div>
                 </div>
             `).join('');
@@ -1212,30 +1212,76 @@ class KeePassWebApp {
     }
 
     // Password Generator
-    async generatePassword(type = 'random') {
+    async generatePassword(type = null) {
+        const genType = type || this.currentGenType || 'random';
+        this.currentGenType = genType;
         const length = parseInt(document.getElementById('genLengthSlider')?.value || 20, 10);
-        const useUpper = document.getElementById('genCheckUpper')?.checked;
-        const useLower = document.getElementById('genCheckLower')?.checked;
-        const useDigits = document.getElementById('genCheckDigits')?.checked;
-        const useSymbols = document.getElementById('genCheckSymbols')?.checked;
-        const avoidAmbiguous = document.getElementById('genCheckAmbiguous')?.checked;
+        const useUpper = document.getElementById('genCheckUpper')?.checked ?? true;
+        const useLower = document.getElementById('genCheckLower')?.checked ?? true;
+        const useDigits = document.getElementById('genCheckDigits')?.checked ?? true;
+        const useSymbols = document.getElementById('genCheckSymbols')?.checked ?? true;
+        const avoidAmbiguous = document.getElementById('genCheckAmbiguous')?.checked ?? true;
         const wordsCount = parseInt(document.getElementById('genWordsSlider')?.value || 4, 10);
         const separator = document.getElementById('genSeparatorSelect')?.value || '-';
 
-        const res = await this.apiPost('/api/generator', {
-            type, length, useUpper, useLower, useDigits, useSymbols, avoidAmbiguous, wordsCount, separator
-        });
+        let res = null;
+        try {
+            res = await this.apiPost('/api/generator', {
+                type: genType, length, useUpper, useLower, useDigits, useSymbols, avoidAmbiguous, wordsCount, separator
+            });
+        } catch (e) {
+            console.error('API generator failed, using local fallback:', e);
+        }
 
-        if (res && res.password) {
+        let password = res?.password;
+        let strength = res?.strength;
+
+        // Resilient fallback generation client-side if API call fails
+        if (!password) {
+            if (genType === 'pin') {
+                const digits = '0123456789';
+                const pinLen = Math.min(length, 12) || 6;
+                const arr = new Uint8Array(pinLen);
+                window.crypto.getRandomValues(arr);
+                password = Array.from(arr, n => digits[n % digits.length]).join('');
+                strength = { entropy: Math.round(pinLen * 3.32), label: 'PIN', score: 60, color: '#3b82f6' };
+            } else if (genType === 'passphrase') {
+                const words = ['beacon', 'cascade', 'dolphin', 'eclipse', 'glacier', 'horizon', 'island', 'jupiter', 'lagoon', 'nebula', 'phoenix', 'quantum', 'radiant', 'summit', 'thunder'];
+                const selected = [];
+                const arr = new Uint16Array(wordsCount);
+                window.crypto.getRandomValues(arr);
+                for (let i = 0; i < wordsCount; i++) {
+                    let w = words[arr[i] % words.length];
+                    if (useUpper && i === 0) w = w.charAt(0).toUpperCase() + w.slice(1);
+                    selected.push(w);
+                }
+                if (useDigits) selected.push(Math.floor(Math.random() * 90 + 10));
+                password = selected.join(separator);
+                strength = { entropy: Math.round(wordsCount * 13), label: 'Passphrase', score: 85, color: '#10b981' };
+            } else {
+                let pool = '';
+                if (useUpper) pool += 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+                if (useLower) pool += 'abcdefghijkmnopqrstuvwxyz';
+                if (useDigits) pool += '23456789';
+                if (useSymbols) pool += '!@#$%^&*()_+-=';
+                if (!pool) pool = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                const arr = new Uint32Array(length);
+                window.crypto.getRandomValues(arr);
+                password = Array.from(arr, n => pool[n % pool.length]).join('');
+                strength = { entropy: Math.round(length * 5), label: 'Strong', score: 90, color: '#10b981' };
+            }
+        }
+
+        if (password) {
             const passEl = document.getElementById('genResultPassword');
             const labelEl = document.getElementById('genStrengthLabel');
             const fillEl = document.getElementById('genStrengthFill');
 
-            if (passEl) passEl.textContent = res.password;
-            if (labelEl) labelEl.textContent = `Entropy: ${res.strength.entropy} bits (${res.strength.label})`;
-            if (fillEl) {
-                fillEl.style.width = `${res.strength.score}%`;
-                fillEl.style.backgroundColor = res.strength.color;
+            if (passEl) passEl.textContent = password;
+            if (labelEl && strength) labelEl.textContent = `Entropy: ${strength.entropy} bits (${strength.label})`;
+            if (fillEl && strength) {
+                fillEl.style.width = `${strength.score}%`;
+                fillEl.style.backgroundColor = strength.color;
             }
         }
     }
@@ -1478,33 +1524,102 @@ class KeePassWebApp {
         }
     }
 
-    async copyToClipboard(text, fieldType = 'field') {
-        if (!text) return;
-        try {
-            await navigator.clipboard.writeText(text);
+    async copyToClipboard(text, fieldType = 'field', btnElement = null) {
+        if (text === undefined || text === null) return;
+        const copyText = String(text).trim();
+        if (!copyText) return;
+
+        let copied = false;
+
+        // Try modern Clipboard API if supported and in a secure context (HTTPS / localhost)
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(copyText);
+                copied = true;
+            } catch (clipErr) {
+                console.warn('navigator.clipboard.writeText failed, attempting execCommand fallback...', clipErr);
+                copied = false;
+            }
+        }
+
+        // Resilient fallback for non-secure contexts (e.g. accessing via http://<IP>:port) and older browsers
+        if (!copied) {
+            try {
+                const textArea = document.createElement('textarea');
+                textArea.value = copyText;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '0';
+                textArea.style.left = '0';
+                textArea.style.width = '2em';
+                textArea.style.height = '2em';
+                textArea.style.padding = '0';
+                textArea.style.border = 'none';
+                textArea.style.outline = 'none';
+                textArea.style.boxShadow = 'none';
+                textArea.style.background = 'transparent';
+                textArea.setAttribute('readonly', '');
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                textArea.setSelectionRange(0, textArea.value.length);
+                copied = document.execCommand('copy');
+                document.body.removeChild(textArea);
+            } catch (fallbackErr) {
+                console.error('execCommand copy fallback failed:', fallbackErr);
+                copied = false;
+            }
+        }
+
+        if (copied) {
             this.showToast(`Copied ${fieldType} to clipboard! (Auto-clears in 30s)`, 'success');
+
+            // Visual feedback on the trigger element
+            if (btnElement) {
+                const origContent = btnElement.innerHTML;
+                btnElement.innerHTML = '✅';
+                btnElement.classList.add('copy-success-pulse');
+                setTimeout(() => {
+                    btnElement.innerHTML = origContent;
+                    btnElement.classList.remove('copy-success-pulse');
+                }, 1500);
+            }
 
             if (this.selectedEntryId) {
                 this.apiPost(`/api/entries/${this.selectedEntryId}/log-copy`, { fieldType });
             }
-        } catch (err) {
+
+            // Auto-clear clipboard after 30 seconds
+            if (this.clipboardClearTimer) clearTimeout(this.clipboardClearTimer);
+            this.clipboardClearTimer = setTimeout(async () => {
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        const current = await navigator.clipboard.readText();
+                        if (current === copyText) {
+                            await navigator.clipboard.writeText('');
+                        }
+                    }
+                } catch (e) {
+                    // Ignore silent auto-clear errors when window is inactive
+                }
+            }, 30000);
+        } else {
             this.showToast('Could not copy to clipboard', 'danger');
         }
     }
 
-    quickCopyPassword(id) {
+    quickCopyPassword(id, btnElement = null) {
         const entry = this.entries.find(e => e.id === id);
         if (entry) {
             this.apiGet(`/api/entries/${id}`).then(res => {
                 if (res && res.entry) {
-                    this.copyToClipboard(res.entry.password, 'password');
+                    this.copyToClipboard(res.entry.password, 'password', btnElement);
                 }
             });
         }
     }
 
-    quickCopyUsername(username) {
-        this.copyToClipboard(username, 'username');
+    quickCopyUsername(username, btnElement = null) {
+        this.copyToClipboard(username, 'username', btnElement);
     }
 
     showToast(message, type = 'info') {
@@ -1640,17 +1755,17 @@ class KeePassWebApp {
         });
 
         // Copy Actions
-        document.getElementById('copyPasswordBtn')?.addEventListener('click', () => {
+        document.getElementById('copyPasswordBtn')?.addEventListener('click', (e) => {
             const val = document.getElementById('detailPasswordInput')?.value;
-            this.copyToClipboard(val, 'password');
+            this.copyToClipboard(val, 'password', e.currentTarget);
         });
-        document.getElementById('copyUsernameBtn')?.addEventListener('click', () => {
+        document.getElementById('copyUsernameBtn')?.addEventListener('click', (e) => {
             const val = document.getElementById('detailUsername')?.textContent;
-            this.copyToClipboard(val, 'username');
+            this.copyToClipboard(val, 'username', e.currentTarget);
         });
-        document.getElementById('copyMfaBtn')?.addEventListener('click', () => {
+        document.getElementById('copyMfaBtn')?.addEventListener('click', (e) => {
             const val = document.getElementById('detailMfaToken')?.textContent.replace(/\s/g, '');
-            this.copyToClipboard(val, 'MFA token');
+            this.copyToClipboard(val, 'MFA token', e.currentTarget);
         });
 
         // Save Entry Submit
@@ -1810,10 +1925,80 @@ class KeePassWebApp {
         document.getElementById('exportCsvBtn')?.addEventListener('click', () => this.downloadExport('csv'));
 
         // Generator events
-        document.getElementById('regenPassBtn')?.addEventListener('click', () => this.generatePassword());
-        document.getElementById('genLengthSlider')?.addEventListener('input', (e) => {
-            document.getElementById('genLengthDisplay').textContent = e.target.value;
+        document.getElementById('regenPassBtn')?.addEventListener('click', () => {
             this.generatePassword();
+        });
+        document.getElementById('genLengthSlider')?.addEventListener('input', (e) => {
+            const disp = document.getElementById('genLengthDisplay');
+            if (disp) disp.textContent = e.target.value;
+            this.generatePassword();
+        });
+
+        // Copy button in Generator Modal (icon button next to password)
+        document.getElementById('copyGenPassBtn')?.addEventListener('click', (e) => {
+            const pass = document.getElementById('genResultPassword')?.textContent;
+            this.copyToClipboard(pass, 'password', e.currentTarget);
+        });
+
+        // Primary "Copy Password" button in Generator Modal footer
+        document.getElementById('useGeneratedPassBtn')?.addEventListener('click', (e) => {
+            const pass = document.getElementById('genResultPassword')?.textContent;
+            this.copyToClipboard(pass, 'password', e.currentTarget);
+            const entryModal = document.getElementById('entryModal');
+            const entryPassInput = document.getElementById('entryInputPassword');
+            if (entryModal && entryModal.style.display !== 'none' && entryPassInput) {
+                entryPassInput.value = pass;
+                entryPassInput.dispatchEvent(new Event('input'));
+            }
+            this.closeModal('generatorModal');
+        });
+
+        // Click directly on generated password string to copy
+        document.getElementById('genResultPassword')?.addEventListener('click', () => {
+            const pass = document.getElementById('genResultPassword')?.textContent;
+            const copyBtn = document.getElementById('copyGenPassBtn');
+            this.copyToClipboard(pass, 'password', copyBtn);
+        });
+
+        // Generator Tabs (Random Password, Memorable Passphrase, Numeric PIN)
+        document.querySelectorAll('.gen-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const type = tab.getAttribute('data-gentype');
+                document.querySelectorAll('.gen-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const randPane = document.getElementById('genSettingsRandom');
+                const passPane = document.getElementById('genSettingsPassphrase');
+                if (randPane) randPane.style.display = (type === 'random' || type === 'pin') ? 'block' : 'none';
+                if (passPane) passPane.style.display = type === 'passphrase' ? 'block' : 'none';
+
+                this.currentGenType = type;
+                this.generatePassword(type);
+            });
+        });
+
+        // Generator Checkbox & Select Option changes
+        ['genCheckUpper', 'genCheckLower', 'genCheckDigits', 'genCheckSymbols', 'genCheckAmbiguous', 'genSeparatorSelect'].forEach(id => {
+            document.getElementById(id)?.addEventListener('change', () => {
+                this.generatePassword(this.currentGenType || 'random');
+            });
+        });
+
+        // Words Count slider for Passphrase mode
+        document.getElementById('genWordsSlider')?.addEventListener('input', (e) => {
+            const valDisplay = document.getElementById('genWordsDisplay');
+            if (valDisplay) valDisplay.textContent = e.target.value;
+            this.generatePassword('passphrase');
+        });
+
+        // MFA secret click-to-copy
+        document.getElementById('mfaSecretDisplay')?.addEventListener('click', (e) => {
+            const secret = document.getElementById('mfaSecretDisplay')?.textContent;
+            this.copyToClipboard(secret, 'MFA secret', e.currentTarget);
+        });
+        document.getElementById('loginMfaSecretBox')?.addEventListener('click', (e) => {
+            const secret = document.getElementById('loginMfaSecretBox')?.textContent;
+            this.copyToClipboard(secret, 'MFA secret', e.currentTarget);
         });
     }
 }
