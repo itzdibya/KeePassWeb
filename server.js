@@ -705,6 +705,13 @@ const server = http.createServer(async (req, res) => {
                     return sendJSON(res, 403, { error: 'Permission denied: only owners/admins can modify sharing' });
                 }
 
+                const entryFolder = db.findFolderById(entry.folderId);
+                if (entryFolder && entryFolder.isShared === false) {
+                    if ((body.sharingMode && body.sharingMode !== 'private') || (body.shares && Array.isArray(body.shares) && body.shares.length > 0)) {
+                        return sendJSON(res, 400, { error: 'Private vault entries cannot be shared with co-members. Move this entry to a shared team folder first.' });
+                    }
+                }
+
                 if (body.sharingMode) {
                     db.updateEntry(entryId, {
                         sharingMode: body.sharingMode,
