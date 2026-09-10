@@ -405,8 +405,11 @@ class KeePassWebApp {
 
         container.innerHTML = filtered.map(entry => {
             const isSelected = entry.id === this.selectedEntryId;
-            const badgeClass = entry.sharingMode === 'private' ? 'access-private' : (entry.sharingMode === 'selected' ? 'access-selected' : 'access-team');
-            const badgeLabel = entry.sharingMode === 'private' ? '🔒 Private' : (entry.sharingMode === 'selected' ? `👥 Co-Shared (${entry.sharesCount})` : '🌐 Team');
+            const folder = this.folders.find(f => f.id === entry.folderId);
+            const isPrivateVault = folder ? folder.isShared === false : false;
+
+            const badgeClass = isPrivateVault ? 'access-private' : (entry.sharingMode === 'private' ? 'access-private' : (entry.sharingMode === 'selected' ? 'access-selected' : 'access-team'));
+            const badgeLabel = isPrivateVault ? '🔒 Private Vault' : (entry.sharingMode === 'private' ? '🔒 Private' : (entry.sharingMode === 'selected' ? `👥 Co-Shared (${entry.sharesCount})` : '🌐 Team'));
 
             return `
                 <div class="entry-row-card ${isSelected ? 'selected' : ''}" data-entry-id="${entry.id}">
@@ -426,7 +429,7 @@ class KeePassWebApp {
                     <div class="entry-quick-actions" onclick="event.stopPropagation();">
                         <button class="quick-action-btn" title="Copy Password" onclick="app.quickCopyPassword('${entry.id}', this)">🔑</button>
                         <button class="quick-action-btn" title="Copy Username" onclick="app.quickCopyUsername('${entry.username}', this)">📋</button>
-                        ${entry.isOwner ? `<button class="quick-action-btn" title="Manage Sharing" onclick="app.openQuickShareModal('${entry.id}')">👥</button>` : ''}
+                        ${(entry.isOwner && !isPrivateVault) ? `<button class="quick-action-btn" title="Manage Sharing" onclick="app.openQuickShareModal('${entry.id}')">👥</button>` : ''}
                     </div>
                 </div>
             `;

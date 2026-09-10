@@ -411,6 +411,28 @@
   ],
   "auditLogs": [
     {
+      "id": "al_1789044232650_lp2b",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sfgdf\"",
+      "timestamp": "2026-09-10T12:43:52.650Z"
+    },
+    {
+      "id": "al_1789044230164_2xsv",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sfgdf\"",
+      "timestamp": "2026-09-10T12:43:50.164Z"
+    },
+    {
       "id": "al_1789043822164_lb5h",
       "userId": "u_admin",
       "username": "admin",
