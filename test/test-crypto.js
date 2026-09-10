@@ -221,7 +221,59 @@ console.log('================================================================\n'
     console.log(`✅ Test 8 Passed: WebAuthn / FIDO2 Hardware Key Challenge Engine (Challenge: ${options.challenge.substring(0, 16)}...)`);
 }
 
+// 9. Test Private Vault Sharing Restrictions (Disallow Sharing to Co-Members)
+{
+    const aliceId = 'u_alice';
+    const bobId = 'u_bob';
+
+    // 1. Existing private vault folder (f_personal_alice) must be unshared
+    const personalFolder = db.findFolderById('f_personal_alice');
+    assert(personalFolder && personalFolder.isShared === false, 'Alice Private Vault folder must have isShared = false');
+
+    // 2. Verify creating an entry in private folder forces sharingMode = 'private' and discards shares
+    const privateEntry = db.createEntry({
+        folderId: 'f_personal_alice',
+        title: 'Alice Super Secret Note',
+        password: 'Pass#12345Secret',
+        sharingMode: 'selected', // Should be forced to 'private'
+        shares: [{ userId: bobId, permission: 'viewer' }] // Should be discarded
+    }, aliceId);
+
+    assert.strictEqual(privateEntry.sharingMode, 'private', 'Entry created in private vault folder must be forced to private sharingMode');
+    const privateShares = db.getEntryShares(privateEntry.id);
+    assert.strictEqual(privateShares.length, 0, 'Entry created in private vault folder must not have any co-member shares');
+
+    // 3. Verify updating an entry in private folder prevents non-private sharingMode
+    const updatedPrivate = db.updateEntry(privateEntry.id, {
+        sharingMode: 'team',
+        shares: [{ userId: bobId, permission: 'editor' }]
+    }, aliceId);
+
+    assert.strictEqual(updatedPrivate.sharingMode, 'private', 'Updating entry in private vault must not allow non-private sharingMode');
+    const updatedShares = db.getEntryShares(privateEntry.id);
+    assert.strictEqual(updatedShares.length, 0, 'Updating entry in private vault must not allow co-member shares');
+
+    // 4. Verify shared folder entry CAN still have co-member shares
+    const sharedEntry = db.createEntry({
+        folderId: 'f_dev',
+        title: 'Shared Dev Secret',
+        password: 'DevSecret#2026',
+        sharingMode: 'selected',
+        shares: [{ userId: bobId, permission: 'viewer' }]
+    }, aliceId);
+
+    assert.strictEqual(sharedEntry.sharingMode, 'selected', 'Entry created in shared folder can have selected sharingMode');
+    const devShares = db.getEntryShares(sharedEntry.id);
+    assert.strictEqual(devShares.length, 1, 'Entry in shared folder can be co-shared with Bob');
+
+    // Clean up test entries
+    db.deleteEntry(privateEntry.id, aliceId, true);
+    db.deleteEntry(sharedEntry.id, aliceId, true);
+
+    console.log('✅ Test 9 Passed: Private Vault Isolation (Disallow Sharing to Co-Members)');
+}
+
 console.log('\n================================================================');
-console.log('  🎉 ALL 8 COMPREHENSIVE VERIFICATION TESTS PASSED SUCCESSFULLY!');
+console.log('  🎉 ALL 9 COMPREHENSIVE VERIFICATION TESTS PASSED SUCCESSFULLY!');
 console.log('================================================================\n');
 
