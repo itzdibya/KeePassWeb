@@ -411,6 +411,39 @@
   ],
   "auditLogs": [
     {
+      "id": "al_1789105584777_ne1h",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_4",
+      "entryTitle": "GitHub Enterprise Org Bot",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"GitHub Enterprise Org Bot\"",
+      "timestamp": "2026-09-11T05:46:24.777Z"
+    },
+    {
+      "id": "al_1789105576466_43pg",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1",
+      "entryTitle": "Corporate WireGuard VPN Gateway",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"Corporate WireGuard VPN Gateway\"",
+      "timestamp": "2026-09-11T05:46:16.466Z"
+    },
+    {
+      "id": "al_1789105566651_57og",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_2",
+      "entryTitle": "AWS Production Master Account",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"AWS Production Master Account\"",
+      "timestamp": "2026-09-11T05:46:06.651Z"
+    },
+    {
       "id": "al_1789105386357_deaf",
       "userId": "u_admin",
       "username": "admin",

@@ -581,10 +581,25 @@ class Database {
             .map(entry => {
                 const permission = this.getUserEntryPermission(userId, entry);
                 const shares = this.getEntryShares(entry.id);
+                const owner = this.findUserById(entry.ownerId);
+                const myShare = shares.find(s => s.userId === userId);
+                const granter = (myShare && myShare.grantedBy) ? this.findUserById(myShare.grantedBy) : null;
+                const sharedByUser = granter || owner;
+
                 return {
                     ...entry,
                     userPermission: permission,
                     isOwner: entry.ownerId === userId || user.role === 'admin',
+                    ownerName: owner ? owner.displayName : 'Unknown',
+                    ownerAvatar: owner ? owner.avatar : '👤',
+                    ownerUsername: owner ? owner.username : '',
+                    sharedBy: sharedByUser ? {
+                        id: sharedByUser.id,
+                        name: sharedByUser.displayName,
+                        username: sharedByUser.username,
+                        avatar: sharedByUser.avatar || '👤',
+                        role: sharedByUser.role
+                    } : null,
                     sharesCount: shares.length,
                     sharedUsers: shares.map(s => {
                         const targetUser = this.findUserById(s.userId);
@@ -632,11 +647,23 @@ class Database {
 
         const shares = this.getEntryShares(entry.id);
         const owner = this.findUserById(entry.ownerId);
+        const myShare = shares.find(s => s.userId === userId);
+        const granter = (myShare && myShare.grantedBy) ? this.findUserById(myShare.grantedBy) : null;
+        const sharedByUser = granter || owner;
 
         return {
             ...entry,
             userPermission: permission,
             ownerName: owner ? owner.displayName : 'Unknown',
+            ownerAvatar: owner ? owner.avatar : '👤',
+            ownerUsername: owner ? owner.username : '',
+            sharedBy: sharedByUser ? {
+                id: sharedByUser.id,
+                name: sharedByUser.displayName,
+                username: sharedByUser.username,
+                avatar: sharedByUser.avatar || '👤',
+                role: sharedByUser.role
+            } : null,
             shares: shares.map(s => {
                 const u = this.findUserById(s.userId);
                 return {
