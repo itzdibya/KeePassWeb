@@ -418,6 +418,11 @@ class KeePassWebApp {
             const isPrivateVault = folder ? folder.isShared === false : false;
             const isTrash = Boolean(entry.inRecycleBin);
 
+            // Determine who shared this item with the current user
+            const isSharedWithMe = entry.ownerId !== this.currentUser?.id;
+            const sharedByName = entry.sharedBy ? entry.sharedBy.name : (entry.ownerName || '');
+            const sharedByAvatar = entry.sharedBy?.avatar || entry.ownerAvatar || '👤';
+
             const badgeClass = isTrash ? 'access-private' : (isPrivateVault ? 'access-private' : (entry.sharingMode === 'private' ? 'access-private' : (entry.sharingMode === 'selected' ? 'access-selected' : 'access-team')));
             const badgeLabel = isTrash ? '🗑️ In Recycle Bin' : (isPrivateVault ? '🔒 Private Vault' : (entry.sharingMode === 'private' ? '🔒 Private' : (entry.sharingMode === 'selected' ? `👥 Co-Shared (${entry.sharesCount})` : '🌐 Team')));
 
@@ -431,6 +436,12 @@ class KeePassWebApp {
                         <div class="entry-sub-text">
                             <span>${this.escapeHtml(entry.username || 'No username')}</span>
                             ${entry.isFavorite ? '<span>⭐</span>' : ''}
+                            ${(isSharedWithMe && sharedByName) ? `
+                                <span class="shared-by-pill" title="Shared by ${this.escapeHtml(sharedByName)}">
+                                    <span class="shared-by-avatar">${sharedByAvatar}</span>
+                                    <span>Shared by <strong>${this.escapeHtml(sharedByName)}</strong></span>
+                                </span>
+                            ` : ''}
                         </div>
                     </div>
                     <div class="entry-access-badge ${badgeClass}">
@@ -516,6 +527,18 @@ class KeePassWebApp {
         const folder = this.folders.find(f => f.id === entry.folderId);
         const isPrivateVault = folder ? folder.isShared === false : false;
 
+        const isSharedWithMe = entry.ownerId !== this.currentUser?.id;
+        const sharedByName = entry.sharedBy ? entry.sharedBy.name : (entry.ownerName || '');
+        const sharedByAvatar = entry.sharedBy?.avatar || entry.ownerAvatar || '👤';
+        const sharedByRole = entry.sharedBy?.role ? ` (${entry.sharedBy.role.toUpperCase()})` : '';
+
+        const sharedByBanner = (isSharedWithMe && sharedByName) ? `
+            <div style="margin-bottom: 8px; padding: 6px 10px; background: rgba(99, 102, 241, 0.14); border: 1px solid rgba(99, 102, 241, 0.32); border-radius: 6px; font-size: 0.83rem; color: #c7d2fe; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.05rem;">${sharedByAvatar}</span>
+                <span>Shared with you by <strong style="color: #ffffff;">${this.escapeHtml(sharedByName)}</strong>${this.escapeHtml(sharedByRole)}</span>
+            </div>
+        ` : '';
+
         if (isPrivateVault) {
             accessBadge.className = 'detail-access-badge access-private';
             accessBadge.textContent = '🔒 Private Vault';
@@ -523,11 +546,12 @@ class KeePassWebApp {
         } else if (entry.sharingMode === 'private') {
             accessBadge.className = 'detail-access-badge access-private';
             accessBadge.textContent = '🔒 Private (Only You)';
-            sharingSummary.innerHTML = `<div>Only you (<strong>${entry.ownerName}</strong>) have access to this credential.</div>`;
+            sharingSummary.innerHTML = `${sharedByBanner}<div>Only you (<strong>${entry.ownerName}</strong>) have access to this credential.</div>`;
         } else if (entry.sharingMode === 'selected') {
             accessBadge.className = 'detail-access-badge access-selected';
             accessBadge.textContent = `👥 Co-Accessible (${entry.shares ? entry.shares.length : 0} members)`;
             sharingSummary.innerHTML = `
+                ${sharedByBanner}
                 <div style="font-weight:600; margin-bottom:6px;">Co-Shared with specific team members:</div>
                 <div style="display:flex; flex-direction:column; gap:4px;">
                     ${entry.shares && entry.shares.length ? entry.shares.map(s => `
@@ -541,7 +565,7 @@ class KeePassWebApp {
         } else {
             accessBadge.className = 'detail-access-badge access-team';
             accessBadge.textContent = '🌐 Team-Wide Shared';
-            sharingSummary.innerHTML = `<div>Accessible to <strong>all members</strong> of the workspace.</div>`;
+            sharingSummary.innerHTML = `${sharedByBanner}<div>Accessible to <strong>all members</strong> of the workspace.</div>`;
         }
 
         // Enable / disable delete & share buttons based on permission
