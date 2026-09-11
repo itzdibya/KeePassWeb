@@ -678,19 +678,51 @@ class KeePassWebApp {
     }
 
     updateBadgeCounts() {
-        const counts = this.vaultCounts || { all: 0, favorites: 0, private: 0, sharedWithMe: 0, sharedByMe: 0, recycleBin: 0 };
+        // If server counts are loaded, use them (accurate across all views and recycle bin)
+        if (this.vaultCounts && (this.vaultCounts.all > 0 || this.vaultCounts.recycleBin > 0)) {
+            const setBadge = (id, count) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = count !== undefined ? count : 0;
+            };
 
-        const setBadge = (id, count) => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = count !== undefined ? count : 0;
-        };
+            setBadge('badgeAllCount', this.vaultCounts.all);
+            setBadge('badgeFavCount', this.vaultCounts.favorites);
+            setBadge('badgePrivateCount', this.vaultCounts.private);
+            setBadge('badgeSharedWithMeCount', this.vaultCounts.sharedWithMe);
+            setBadge('badgeSharedByMeCount', this.vaultCounts.sharedByMe);
+            setBadge('badgeTrashCount', this.vaultCounts.recycleBin);
+            return;
+        }
 
-        setBadge('badgeAllCount', counts.all);
-        setBadge('badgeFavCount', counts.favorites);
-        setBadge('badgePrivateCount', counts.private);
-        setBadge('badgeSharedWithMeCount', counts.sharedWithMe);
-        setBadge('badgeSharedByMeCount', counts.sharedByMe);
-        setBadge('badgeTrashCount', counts.recycleBin);
+        // Fallback only if counts haven't loaded yet and we are in 'all' view
+        if (this.currentView === 'all' && this.entries && this.entries.length > 0) {
+            const allCount = this.entries.length;
+            const favCount = this.entries.filter(e => e.isFavorite).length;
+            const privCount = this.entries.filter(e => e.sharingMode === 'private' && e.ownerId === this.currentUser?.id).length;
+            const sharedWithMe = this.entries.filter(e => e.ownerId !== this.currentUser?.id && (e.sharingMode === 'selected' || e.sharingMode === 'team')).length;
+            const sharedByMe = this.entries.filter(e => e.ownerId === this.currentUser?.id && (e.sharingMode === 'selected' || e.sharingMode === 'team')).length;
+
+            this.vaultCounts = {
+                all: allCount,
+                favorites: favCount,
+                private: privCount,
+                sharedWithMe,
+                sharedByMe,
+                recycleBin: this.vaultCounts?.recycleBin || 0
+            };
+
+            const setBadge = (id, count) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = count !== undefined ? count : 0;
+            };
+
+            setBadge('badgeAllCount', allCount);
+            setBadge('badgeFavCount', favCount);
+            setBadge('badgePrivateCount', privCount);
+            setBadge('badgeSharedWithMeCount', sharedWithMe);
+            setBadge('badgeSharedByMeCount', sharedByMe);
+            setBadge('badgeTrashCount', this.vaultCounts.recycleBin);
+        }
     }
 
     setView(viewName) {
