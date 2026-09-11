@@ -701,6 +701,31 @@ body {
     margin-top: 2px;
 }
 
+.shared-by-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.73rem;
+    font-weight: 500;
+    color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.32);
+    padding: 1px 7px;
+    border-radius: var(--radius-full);
+    margin-left: 2px;
+    white-space: nowrap;
+}
+
+.shared-by-pill strong {
+    color: #e0e7ff;
+    font-weight: 600;
+}
+
+.shared-by-avatar {
+    font-size: 0.8rem;
+    line-height: 1;
+}
+
 .entry-access-badge {
     font-size: 0.72rem;
     font-weight: 600;
