@@ -1217,9 +1217,12 @@ const server = http.createServer(async (req, res) => {
             } else {
                 const ext = path.extname(filePath).toLowerCase();
                 const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+                const isDynamicAsset = ext === '.html' || ext === '.js' || ext === '.css' || ext === '.json';
                 res.writeHead(200, {
                     'Content-Type': contentType,
-                    'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600'
+                    'Cache-Control': isDynamicAsset ? 'no-cache, no-store, must-revalidate, max-age=0' : 'public, max-age=3600',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
                 });
                 res.end(content);
             }
