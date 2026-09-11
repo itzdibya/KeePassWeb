@@ -273,7 +273,45 @@ console.log('================================================================\n'
     console.log('✅ Test 9 Passed: Private Vault Isolation (Disallow Sharing to Co-Members)');
 }
 
+// 10. Test Vault Category Counts & Recycle Bin Restore Workflow
+{
+    const aliceId = 'u_alice';
+    const initialCounts = db.getVaultCounts(aliceId);
+
+    // Create test entry
+    const entry = db.createEntry({
+        folderId: 'f_root',
+        title: 'Recycle Bin Test Item',
+        username: 'test_trash_user',
+        password: 'TrashPassword!123',
+        sharingMode: 'private'
+    }, aliceId);
+
+    const countsAfterCreate = db.getVaultCounts(aliceId);
+    assert.strictEqual(countsAfterCreate.all, initialCounts.all + 1, 'All count must increment after creation');
+
+    // Move to Recycle Bin
+    db.deleteEntry(entry.id, aliceId, false);
+    const countsAfterTrash = db.getVaultCounts(aliceId);
+    assert.strictEqual(countsAfterTrash.all, initialCounts.all, 'Active items count must decrement after moving to trash');
+    assert.strictEqual(countsAfterTrash.recycleBin, initialCounts.recycleBin + 1, 'Recycle bin count must increment after moving to trash');
+
+    // Restore from Recycle Bin
+    const restored = db.restoreEntry(entry.id, aliceId);
+    assert.strictEqual(restored, true, 'Restore entry must succeed');
+    const countsAfterRestore = db.getVaultCounts(aliceId);
+    assert.strictEqual(countsAfterRestore.all, initialCounts.all + 1, 'Active items count must increment after restore');
+    assert.strictEqual(countsAfterRestore.recycleBin, initialCounts.recycleBin, 'Recycle bin count must decrement after restore');
+
+    // Permanently delete
+    db.deleteEntry(entry.id, aliceId, true);
+    const countsAfterPermDelete = db.getVaultCounts(aliceId);
+    assert.strictEqual(countsAfterPermDelete.all, initialCounts.all, 'Counts must return to initial state after permanent delete');
+
+    console.log('✅ Test 10 Passed: Vault Category Counts & Recycle Bin Lifecycle (Move, Count, Restore, Permanent Delete)');
+}
+
 console.log('\n================================================================');
-console.log('  🎉 ALL 9 COMPREHENSIVE VERIFICATION TESTS PASSED SUCCESSFULLY!');
+console.log('  🎉 ALL 10 COMPREHENSIVE VERIFICATION TESTS PASSED SUCCESSFULLY!');
 console.log('================================================================\n');
 
