@@ -371,7 +371,7 @@
       "inRecycleBin": false,
       "sharingMode": "private",
       "createdAt": "2026-09-10T12:35:35.250Z",
-      "updatedAt": "2026-09-10T12:35:35.250Z"
+      "updatedAt": "2026-09-10T12:48:06.469Z"
     }
   ],
   "entryShares": [
@@ -410,6 +410,127 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "al_1789103786612_ra2t",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_2",
+      "entryTitle": "AWS Production Master Account",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"AWS Production Master Account\"",
+      "timestamp": "2026-09-11T05:16:26.612Z"
+    },
+    {
+      "id": "al_1789103718158_bbmi",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_2",
+      "entryTitle": "AWS Production Master Account",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"AWS Production Master Account\"",
+      "timestamp": "2026-09-11T05:15:18.158Z"
+    },
+    {
+      "id": "al_1789103714862_xji0",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1",
+      "entryTitle": "Corporate WireGuard VPN Gateway",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"Corporate WireGuard VPN Gateway\"",
+      "timestamp": "2026-09-11T05:15:14.862Z"
+    },
+    {
+      "id": "al_1789103707390_cwrh",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_4",
+      "entryTitle": "GitHub Enterprise Org Bot",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"GitHub Enterprise Org Bot\"",
+      "timestamp": "2026-09-11T05:15:07.390Z"
+    },
+    {
+      "id": "al_1789044487170_aw17",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sfgdf\"",
+      "timestamp": "2026-09-10T12:48:07.170Z"
+    },
+    {
+      "id": "al_1789044486469_bm4r",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "ENTRY_SHARED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Updated sharing settings (Mode: private, Shares: 0)",
+      "timestamp": "2026-09-10T12:48:06.469Z"
+    },
+    {
+      "id": "al_1789044482032_39ql",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sfgdf\"",
+      "timestamp": "2026-09-10T12:48:02.032Z"
+    },
+    {
+      "id": "al_1789044470886_tj7u",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sfgdf\"",
+      "timestamp": "2026-09-10T12:47:50.886Z"
+    },
+    {
+      "id": "al_1789044470633_58j1",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "ENTRY_SHARED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Updated sharing settings (Mode: selected, Shares: 0)",
+      "timestamp": "2026-09-10T12:47:50.633Z"
+    },
+    {
+      "id": "al_1789044462221_dwwo",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "PASSWORD_REVEALED",
+      "entryId": "e_1789043735073_n3zll",
+      "entryTitle": "sfgdf",
+      "ip": "10.200.58.59",
+      "details": "Decrypted and viewed credentials for \"sfgdf\"",
+      "timestamp": "2026-09-10T12:47:42.221Z"
+    },
+    {
+      "id": "al_1789044458202_vba7",
+      "userId": "u_admin",
+      "username": "admin",
+      "action": "LOGIN",
+      "entryId": null,
+      "entryTitle": null,
+      "ip": "10.200.58.59",
+      "details": "User logged in successfully (Salt Hashing verified)",
+      "timestamp": "2026-09-10T12:47:38.202Z"
+    },
     {
       "id": "al_1789044232650_lp2b",
       "userId": "u_admin",

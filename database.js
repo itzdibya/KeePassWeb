@@ -600,6 +600,30 @@ class Database {
             });
     }
 
+    getVaultCounts(userId) {
+        const user = this.findUserById(userId);
+        if (!user) {
+            return { all: 0, favorites: 0, private: 0, sharedWithMe: 0, sharedByMe: 0, recycleBin: 0 };
+        }
+
+        const activeEntries = this.getAccessibleEntries(userId, { inRecycleBin: false });
+        const recycleEntries = this.getAccessibleEntries(userId, { inRecycleBin: true });
+
+        const favorites = activeEntries.filter(e => e.isFavorite).length;
+        const privateCount = activeEntries.filter(e => e.ownerId === userId && e.sharingMode === 'private').length;
+        const sharedWithMe = activeEntries.filter(e => e.ownerId !== userId && (e.sharingMode === 'selected' || e.sharingMode === 'team')).length;
+        const sharedByMe = activeEntries.filter(e => e.ownerId === userId && (e.sharingMode === 'selected' || e.sharingMode === 'team')).length;
+
+        return {
+            all: activeEntries.length,
+            favorites,
+            private: privateCount,
+            sharedWithMe,
+            sharedByMe,
+            recycleBin: recycleEntries.length
+        };
+    }
+
     getEntryById(id, userId) {
         const entry = this.data.entries.find(e => e.id === id);
         if (!entry) return null;
