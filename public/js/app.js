@@ -21,6 +21,7 @@ class KeePassWebApp {
         this.accessFilter = 'all';
         this.sortBy = 'title_asc';
         this.viewMode = 'list';
+        this.vaultCounts = { all: 0, favorites: 0, private: 0, sharedWithMe: 0, sharedByMe: 0, recycleBin: 0 };
         this.mfaTimer = null;
         this.autoLockTimer = null;
 
@@ -320,13 +321,21 @@ class KeePassWebApp {
             await Promise.all([
                 this.loadFolders(),
                 this.loadUsers(),
-                this.loadEntries()
+                this.loadEntries(),
+                this.loadCounts()
             ]);
             this.renderFolderTree();
             this.renderEntries();
             this.updateBadgeCounts();
         } catch (err) {
             console.error('Error loading vault data:', err);
+        }
+    }
+
+    async loadCounts() {
+        const res = await this.apiGet('/api/vault/counts');
+        if (res && res.counts) {
+            this.vaultCounts = res.counts;
         }
     }
 
@@ -407,9 +416,10 @@ class KeePassWebApp {
             const isSelected = entry.id === this.selectedEntryId;
             const folder = this.folders.find(f => f.id === entry.folderId);
             const isPrivateVault = folder ? folder.isShared === false : false;
+            const isTrash = Boolean(entry.inRecycleBin);
 
-            const badgeClass = isPrivateVault ? 'access-private' : (entry.sharingMode === 'private' ? 'access-private' : (entry.sharingMode === 'selected' ? 'access-selected' : 'access-team'));
-            const badgeLabel = isPrivateVault ? '🔒 Private Vault' : (entry.sharingMode === 'private' ? '🔒 Private' : (entry.sharingMode === 'selected' ? `👥 Co-Shared (${entry.sharesCount})` : '🌐 Team'));
+            const badgeClass = isTrash ? 'access-private' : (isPrivateVault ? 'access-private' : (entry.sharingMode === 'private' ? 'access-private' : (entry.sharingMode === 'selected' ? 'access-selected' : 'access-team')));
+            const badgeLabel = isTrash ? '🗑️ In Recycle Bin' : (isPrivateVault ? '🔒 Private Vault' : (entry.sharingMode === 'private' ? '🔒 Private' : (entry.sharingMode === 'selected' ? `👥 Co-Shared (${entry.sharesCount})` : '🌐 Team')));
 
             return `
                 <div class="entry-row-card ${isSelected ? 'selected' : ''}" data-entry-id="${entry.id}">
@@ -427,9 +437,14 @@ class KeePassWebApp {
                         ${badgeLabel}
                     </div>
                     <div class="entry-quick-actions" onclick="event.stopPropagation();">
-                        <button class="quick-action-btn" title="Copy Password" onclick="app.quickCopyPassword('${entry.id}', this)">🔑</button>
-                        <button class="quick-action-btn" title="Copy Username" onclick="app.quickCopyUsername('${entry.username}', this)">📋</button>
-                        ${(entry.isOwner && !isPrivateVault) ? `<button class="quick-action-btn" title="Manage Sharing" onclick="app.openQuickShareModal('${entry.id}')">👥</button>` : ''}
+                        ${isTrash ? `
+                            <button class="quick-action-btn" title="Restore Entry" onclick="app.restoreEntry('${entry.id}')" style="color:#10b981;">♻️</button>
+                            <button class="quick-action-btn" title="Permanently Delete" onclick="app.deleteEntry('${entry.id}')" style="color:#ef4444;">🗑️</button>
+                        ` : `
+                            <button class="quick-action-btn" title="Copy Password" onclick="app.quickCopyPassword('${entry.id}', this)">🔑</button>
+                            <button class="quick-action-btn" title="Copy Username" onclick="app.quickCopyUsername('${entry.username}', this)">📋</button>
+                            ${(entry.isOwner && !isPrivateVault) ? `<button class="quick-action-btn" title="Manage Sharing" onclick="app.openQuickShareModal('${entry.id}')">👥</button>` : ''}
+                        `}
                     </div>
                 </div>
             `;
@@ -530,8 +545,28 @@ class KeePassWebApp {
         }
 
         // Enable / disable delete & share buttons based on permission
+        const isInTrash = Boolean(entry.inRecycleBin);
         const canManage = ['owner', 'admin', 'co_owner'].includes(entry.userPermission) && !isPrivateVault;
-        if (shareBtn) shareBtn.style.display = canManage ? 'inline-flex' : 'none';
+        if (shareBtn) shareBtn.style.display = (canManage && !isInTrash) ? 'inline-flex' : 'none';
+
+        const editBtn = document.getElementById('editDetailBtn');
+        if (editBtn) editBtn.style.display = isInTrash ? 'none' : 'inline-flex';
+
+        const favBtn = document.getElementById('favoriteDetailBtn');
+        if (favBtn) favBtn.style.display = isInTrash ? 'none' : 'inline-flex';
+
+        const restoreBtn = document.getElementById('restoreDetailBtn');
+        if (restoreBtn) restoreBtn.style.display = isInTrash ? 'inline-flex' : 'none';
+
+        const deleteBtn = document.getElementById('deleteDetailBtn');
+        if (deleteBtn) {
+            deleteBtn.title = isInTrash ? 'Delete Permanently' : 'Delete Entry';
+        }
+
+        const recycleBanner = document.getElementById('recycleBinBanner');
+        if (recycleBanner) {
+            recycleBanner.style.display = isInTrash ? 'flex' : 'none';
+        }
 
         // Custom Fields
         const customFieldsCard = document.getElementById('detailCustomFieldsCard');
@@ -643,26 +678,26 @@ class KeePassWebApp {
     }
 
     updateBadgeCounts() {
-        const allCount = this.entries.length;
-        const favCount = this.entries.filter(e => e.isFavorite).length;
-        const privCount = this.entries.filter(e => e.sharingMode === 'private' && e.ownerId === this.currentUser?.id).length;
-        const sharedWithMe = this.entries.filter(e => e.ownerId !== this.currentUser?.id).length;
-        const sharedByMe = this.entries.filter(e => e.ownerId === this.currentUser?.id && e.sharingMode !== 'private').length;
+        const counts = this.vaultCounts || { all: 0, favorites: 0, private: 0, sharedWithMe: 0, sharedByMe: 0, recycleBin: 0 };
 
         const setBadge = (id, count) => {
             const el = document.getElementById(id);
-            if (el) el.textContent = count;
+            if (el) el.textContent = count !== undefined ? count : 0;
         };
 
-        setBadge('badgeAllCount', allCount);
-        setBadge('badgeFavCount', favCount);
-        setBadge('badgePrivateCount', privCount);
-        setBadge('badgeSharedWithMeCount', sharedWithMe);
-        setBadge('badgeSharedByMeCount', sharedByMe);
+        setBadge('badgeAllCount', counts.all);
+        setBadge('badgeFavCount', counts.favorites);
+        setBadge('badgePrivateCount', counts.private);
+        setBadge('badgeSharedWithMeCount', counts.sharedWithMe);
+        setBadge('badgeSharedByMeCount', counts.sharedByMe);
+        setBadge('badgeTrashCount', counts.recycleBin);
     }
 
     setView(viewName) {
         this.currentView = viewName;
+        this.selectedEntryId = null;
+        this.closeDetail();
+
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.toggle('active', item.getAttribute('data-view') === viewName);
         });
@@ -993,18 +1028,48 @@ class KeePassWebApp {
         if (!id) return;
         const entry = this.entries.find(e => e.id === id);
         const title = entry ? entry.title : 'this entry';
+        const isInTrash = entry ? Boolean(entry.inRecycleBin) : (this.currentView === 'recycle_bin');
 
-        if (!confirm(`Are you sure you want to move "${title}" to the recycle bin?`)) {
-            return;
+        if (isInTrash) {
+            if (!confirm(`Are you sure you want to PERMANENTLY delete "${title}"? This action cannot be undone.`)) {
+                return;
+            }
+            const res = await this.apiDelete(`/api/entries/${id}?permanent=true`);
+            if (res && res.success) {
+                this.showToast(`"${title}" permanently deleted`, 'info');
+                this.closeDetail();
+                await this.loadVaultData();
+            } else {
+                this.showToast(res?.error || 'Failed to delete entry', 'danger');
+            }
+        } else {
+            if (!confirm(`Are you sure you want to move "${title}" to the recycle bin?`)) {
+                return;
+            }
+            const res = await this.apiDelete(`/api/entries/${id}`);
+            if (res && res.success) {
+                this.showToast(`"${title}" moved to recycle bin`, 'info');
+                this.closeDetail();
+                await this.loadVaultData();
+            } else {
+                this.showToast(res?.error || 'Failed to delete entry', 'danger');
+            }
         }
+    }
 
-        const res = await this.apiDelete(`/api/entries/${id}`);
+    async restoreEntry(entryId) {
+        const id = entryId || this.selectedEntryId;
+        if (!id) return;
+        const entry = this.entries.find(e => e.id === id);
+        const title = entry ? entry.title : 'this entry';
+
+        const res = await this.apiPost(`/api/entries/${id}/restore`);
         if (res && res.success) {
-            this.showToast(`"${title}" moved to trash`, 'info');
+            this.showToast(`"${title}" restored from recycle bin!`, 'success');
             this.closeDetail();
             await this.loadVaultData();
         } else {
-            this.showToast(res?.error || 'Failed to delete entry', 'danger');
+            this.showToast(res?.error || 'Failed to restore entry', 'danger');
         }
     }
 
@@ -1022,6 +1087,8 @@ class KeePassWebApp {
             const favBtn = document.getElementById('favoriteDetailBtn');
             if (favBtn) favBtn.style.color = isFav ? '#f59e0b' : '';
             this.showToast(isFav ? 'Added to favorites ⭐' : 'Removed from favorites', 'info');
+            await this.loadCounts();
+            this.updateBadgeCounts();
         }
     }
 
@@ -1961,9 +2028,15 @@ class KeePassWebApp {
             }
         });
 
-        // Detail Action Bar Buttons (Edit, Delete, Favorite, Share, Close)
+        // Detail Action Bar Buttons (Edit, Delete, Favorite, Share, Close, Restore)
         document.getElementById('editDetailBtn')?.addEventListener('click', () => {
             if (this.selectedEntryId) this.openEditEntryModal(this.selectedEntryId);
+        });
+        document.getElementById('restoreDetailBtn')?.addEventListener('click', () => {
+            if (this.selectedEntryId) this.restoreEntry(this.selectedEntryId);
+        });
+        document.getElementById('restoreBannerBtn')?.addEventListener('click', () => {
+            if (this.selectedEntryId) this.restoreEntry(this.selectedEntryId);
         });
         document.getElementById('deleteDetailBtn')?.addEventListener('click', () => {
             if (this.selectedEntryId) this.deleteEntry(this.selectedEntryId);
