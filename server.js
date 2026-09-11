@@ -488,6 +488,12 @@ const server = http.createServer(async (req, res) => {
                 return sendJSON(res, 200, { entries: enriched });
             }
 
+            // 5b. Vault Category Counts
+            if (pathname === '/api/vault/counts' && req.method === 'GET') {
+                const counts = db.getVaultCounts(currentUser.id);
+                return sendJSON(res, 200, { counts });
+            }
+
             // 6. Entries: Get single entry details
             const entryIdMatch = pathname.match(/^\/api\/entries\/([a-zA-Z0-9_-]+)$/);
             if (entryIdMatch && req.method === 'GET') {
@@ -648,6 +654,31 @@ const server = http.createServer(async (req, res) => {
                         entryId,
                         ip: clientIp,
                         details: permanent ? `Permanently deleted entry ID ${entryId}` : `Moved entry ID ${entryId} to trash`
+                    });
+
+                    return sendJSON(res, 200, { success: true });
+                } catch (err) {
+                    return sendJSON(res, 403, { error: err.message });
+                }
+            }
+
+            // 9b. Entries: Restore Entry from Recycle Bin
+            const restoreMatch = pathname.match(/^\/api\/entries\/([a-zA-Z0-9_-]+)\/restore$/);
+            if (restoreMatch && req.method === 'POST') {
+                const entryId = restoreMatch[1];
+                try {
+                    const success = db.restoreEntry(entryId, currentUser.id);
+                    if (!success) {
+                        return sendJSON(res, 404, { error: 'Entry not found' });
+                    }
+
+                    db.logAudit({
+                        userId: currentUser.id,
+                        username: currentUser.username,
+                        action: 'ENTRY_RESTORED',
+                        entryId,
+                        ip: clientIp,
+                        details: `Restored entry ID ${entryId} from recycle bin`
                     });
 
                     return sendJSON(res, 200, { success: true });
