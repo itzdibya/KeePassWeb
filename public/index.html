@@ -241,8 +241,15 @@
                                 <span>Share</span>
                             </button>
                             <button id="editDetailBtn" class="detail-action-btn" title="Edit Entry">✏️ Edit</button>
+                            <button id="restoreDetailBtn" class="detail-action-btn" title="Restore from Recycle Bin" style="display:none; color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1);">♻️ Restore</button>
                             <button id="deleteDetailBtn" class="detail-action-btn danger" title="Delete Entry">🗑️</button>
                         </div>
+                    </div>
+
+                    <!-- Recycle Bin Notice Banner -->
+                    <div id="recycleBinBanner" style="display:none; align-items:center; justify-content:space-between; padding:10px 14px; background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.3); border-radius:var(--radius-md); margin-bottom:12px;">
+                        <span style="color:#f87171; font-size:0.85rem; font-weight:500;">🗑️ This item is in the Recycle Bin.</span>
+                        <button class="btn btn-sm btn-primary" id="restoreBannerBtn" style="padding:4px 10px; font-size:0.8rem;">♻️ Restore</button>
                     </div>
 
                     <!-- Header with Icon & Title -->
